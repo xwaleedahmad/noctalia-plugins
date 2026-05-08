@@ -12,13 +12,16 @@ Item {
     property var cfg: pluginApi?.pluginSettings || ({})
     property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
     readonly property string platform: cfg.platform ?? defaults.platform
+    readonly property var main: pluginApi?.mainInstance
 
-    property string prString: platform === 'gitlab' ? "Merge Requests" : "Pull Requests"
-    property string tooltipText: issues + " Issues" + " - " + prs + " " + prString
+    property string requestLabel: platform === 'gitlab' ? pluginApi?.tr("panel.mr") : pluginApi?.tr("panel.pr")
+    property string tooltipText: pluginApi?.tr("widget.tooltip", {
+        issues: main?.issuesCount ?? 0,
+        requestCount: main?.prsCount ?? 0,
+        requestLabel
+    })
     property var pluginApi: null
     property ShellScreen screen
-    property string issues: cfg.issues ?? defaults.issues
-    property string prs: cfg.prs ?? defaults.prs
     property int sectionWidgetIndex: -1
     property int sectionWidgetsCount: 0
     property string section: ""

@@ -10,25 +10,29 @@ ColumnLayout {
     property var defaults: pluginApi?.manifest?.metadata?.defaultSettings
     property var pluginApi: null
     property string valuePlatform: cfg.platform ?? defaults.platform
+    property string valueRepo: cfg.repo ?? defaults.repo ?? ""
+    property string valueGroup: cfg.group ?? defaults.group ?? ""
     property int valueRefreshInterval: cfg.refreshInterval ?? defaults.refreshInterval
 
     function saveSettings() {
         if (!pluginApi) {
-            Logger.e("HelloWorld", "Cannot save settings: pluginApi is null");
+            Logger.e("Git Companion", "Cannot save settings: pluginApi is null");
             return;
         }
 
         pluginApi.pluginSettings.platform = root.valuePlatform;
+        pluginApi.pluginSettings.repo = root.valueRepo;
+        pluginApi.pluginSettings.group = root.valueGroup;
         pluginApi.pluginSettings.refreshInterval = root.valueRefreshInterval;
         pluginApi.saveSettings();
 
-        Logger.d("HelloWorld", "Settings saved successfully");
+        Logger.d("Git Companion", "Settings saved successfully");
     }
 
     spacing: Style.marginL
 
     Component.onCompleted: {
-        Logger.d("HelloWorld", "Settings UI loaded");
+        Logger.d("Git Companion", "Settings UI loaded");
     }
 
     ColumnLayout {
@@ -53,6 +57,32 @@ ColumnLayout {
             onSelected: key => {
                 root.valuePlatform = key;
                 pluginApi.pluginSettings.platform = key;
+                pluginApi.saveSettings();
+            }
+        }
+        NTextInput {
+            Layout.fillWidth: true
+            label: pluginApi?.tr("settings.repo.label")
+            description: pluginApi?.tr("settings.repo.desc")
+            placeholderText: "owner/repo"
+            text: root.valueRepo
+
+            onTextChanged: {
+                root.valueRepo = text;
+                pluginApi.pluginSettings.repo = text;
+                pluginApi.saveSettings();
+            }
+        }
+        NTextInput {
+            Layout.fillWidth: true
+            label: pluginApi?.tr(root.valuePlatform === 'gitlab' ? "settings.group.label" : "settings.org.label")
+            description: pluginApi?.tr(root.valuePlatform === 'gitlab' ? "settings.group.desc" : "settings.org.desc")
+            placeholderText: root.valuePlatform === 'gitlab' ? "my-group" : "my-org"
+            text: root.valueGroup
+
+            onTextChanged: {
+                root.valueGroup = text;
+                pluginApi.pluginSettings.group = text;
                 pluginApi.saveSettings();
             }
         }

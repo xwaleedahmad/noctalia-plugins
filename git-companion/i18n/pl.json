@@ -3,16 +3,21 @@
     "settings": "Ustawienia widgetu"
   },
   "panel": {
-    "auth-error": "Uwierzytelnij się, aby używać tej wtyczki: ",
+    "auth-error": "Uwierzytelnij się, aby używać tej wtyczki: {bin} auth login",
     "issues": "Zgłoszenia",
+    "issues-count": "Zgłoszenia ({count})",
     "mr": "Żądania scalenia",
+    "mr-count": "Żądania scalenia ({count})",
     "open-settings": "Otwórz ustawienia wtyczki",
     "pr": "Pull Requesty",
+    "pr-count": "Pull Requesty ({count})",
+    "bin-not-installed": "{bin} nie jest zainstalowany. Zainstaluj go, aby używać tej wtyczki.",
     "refresh": "Odśwież",
-    "repo": {
-      "desc": "Wybierz repozytorium do wyświetlenia",
-      "label": "Repozytorium"
-    },
+    "no-scope": "Ustaw Grupę lub Repozytorium w Ustawieniach, aby wyświetlić przypisane do ciebie elementy.",
+    "no-prs": "Brak otwartych pull requestów",
+    "no-mrs": "Brak otwartych żądań scalenia",
+    "no-issues": "Brak otwartych zgłoszeń",
+    "loading": "Ładowanie…",
     "title": "Git Companion"
   },
   "settings": {
@@ -23,9 +28,24 @@
     "refreshInterval": {
       "desc": "Jak często odświeżać dane, w sekundach.",
       "label": "Interwał odświeżania (s)"
+    },
+    "repo": {
+      "label": "Repozytorium",
+      "desc": "Ogranicz do określonego repozytorium (np. owner/repo). Pozostaw puste, aby użyć Grupy."
+    },
+    "group": {
+      "label": "Grupa",
+      "desc": "Slug grupy GitLab. Ma pierwszeństwo nad Repozytorium, jeśli jest ustawiony."
+    },
+    "org": {
+      "label": "Organizacja",
+      "desc": "Organizacja GitHub. Pozostaw puste, aby wyszukiwać globalnie we wszystkich twoich repozytoriach."
     }
   },
   "widget": {
-    "tooltip": "Hello World"
+    "tooltip": "{issues} Zgłoszenia - {requestCount} {requestLabel}"
+  },
+  "desktop": {
+    "text": "{issues} Zgłoszenia - {requestCount} {requestLabel}"
   }
 }

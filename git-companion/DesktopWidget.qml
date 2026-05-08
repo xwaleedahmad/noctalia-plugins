@@ -10,11 +10,14 @@ DraggableDesktopWidget {
     readonly property var cfg: pluginApi?.pluginSettings ?? ({})
     readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings ?? ({})
     readonly property string platform: cfg.platform ?? defaults.platform
+    readonly property var main: pluginApi?.mainInstance
     property string selectedRepo: cfg.selectedRepo ?? defaults.selectedRepo
-    property string issues: cfg.issues ?? defaults.issues
-    property string prs: cfg.prs ?? defaults.prs
-    property string prString: platform === 'gitlab' ? "Merge Requests" : "Pull Requests"
-    property string text: issues + " Issues" + " - " + prs + " " + prString
+    property string requestLabel: platform === 'gitlab' ? pluginApi?.tr("panel.mr") : pluginApi?.tr("panel.pr")
+    property string text: pluginApi?.tr("desktop.text", {
+        issues: main?.issuesCount ?? 0,
+        requestCount: main?.prsCount ?? 0,
+        requestLabel
+    })
     property var pluginApi: null
 
     implicitHeight: 120

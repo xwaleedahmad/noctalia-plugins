@@ -26,11 +26,8 @@
   "metadata": {
     "defaultSettings": {
       "platform": "github",
-      "selectedRepo": "",
-      "issues": "",
-      "prs": "0",
-      "repoList": [],
-      "user": { "name": "", "avatar": "", "bio": "" },
+      "repo": "",
+      "group": "",
       "refreshInterval": 60
     }
   }

@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Quickshell.Io
 import qs.Commons
 import qs.Services.UI
 import qs.Widgets
@@ -11,213 +10,79 @@ Item {
     id: root
 
     readonly property bool allowAttach: true
-    readonly property string bin: platform === 'gitlab' ? 'glab' : 'gh'
-    property var cfg: pluginApi?.pluginSettings || ({})
-    property real contentPreferredHeight: 260 * Style.uiScaleRatio
+    property real contentPreferredHeight: 600 * Style.uiScaleRatio + Style.marginM
     property real contentPreferredWidth: 440 * Style.uiScaleRatio
+
+    property var cfg: pluginApi?.pluginSettings || ({})
     property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
     // SmartPanel
     readonly property var geometryPlaceholder: panelContainer
-    property bool isAuthenticated: true
-    property bool isBinInstalled: true
-    property string issues: cfg.issues ?? defaults.issues
-    property string prs: cfg.prs ?? defaults.prs
-    property bool loading: false
-    readonly property string platform: cfg.platform ?? defaults.platform
 
     // Plugin API (injected by PluginPanelSlot)
     property var pluginApi: null
-    property string prString: platform === 'gitlab' ? pluginApi?.tr("panel.mr") : pluginApi?.tr("panel.pr")
-    property var repoList: cfg.repoList ?? []
-    property string selectedRepo: cfg.selectedRepo ?? defaults.selectedRepo
-    property var user: cfg.user ?? {
-        name: "",
-        avatar: "",
-        bio: ""
-    }
+    readonly property var main: pluginApi?.mainInstance
+    readonly property string platform: cfg.platform ?? defaults.platform
+    readonly property string bin: platform === 'gitlab' ? 'glab' : 'gh'
 
-    function refreshRepoStats() {
-        issueProcess.running = true;
-        prProcess.running = true;
-    }
-    function startCheck() {
-        isBinInstalled = true;
-        isAuthenticated = true;
-
-        loading = repoList.length === 0;
-        binProcess.running = true;
-    }
+    readonly property bool ready: main && main.isBinInstalled && main.isAuthenticated
+    readonly property bool showNoScope: ready && platform === 'gitlab' && !main.hasScope
+    readonly property bool showLists: ready && !showNoScope
 
     anchors.fill: parent
 
-    onBinChanged: {
-        startCheck();
-    }
-    onSelectedRepoChanged: {
-        refreshRepoStats();
-    }
+    // Shared list-item delegate (PRs and Issues)
+    Component {
+        id: itemDelegate
 
-    Timer {
-        interval: (cfg.refreshInterval ?? defaults.refreshInterval) * 1000
-        repeat: true
-        running: true
-        triggeredOnStart: true
+        Rectangle {
+            id: itemCard
 
-        onTriggered: {
-            startCheck();
-        }
-    }
-    Process {
-        id: binProcess
+            width: ListView.view.width
+            height: itemContent.implicitHeight + Style.margin2M
+            radius: Style.radiusM
+            color: itemMouseArea.containsMouse ? Color.mHover : Color.mSurface
 
-        command: [bin, "--version"]
-        running: false
-
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                root.isBinInstalled = false;
-            } else {
-                authProcess.running = true;
+            Behavior on color {
+                ColorAnimation {
+                    duration: 100
+                }
             }
-        }
-    }
-    Process {
-        id: authProcess
 
-        command: [bin, "auth", "status"]
-        running: false
-
-        onExited: exitCode => {
-            if (exitCode !== 0) {
-                root.isAuthenticated = false;
-                root.loading = false;
-            } else {
-                userProcess.running = true;
+            MouseArea {
+                id: itemMouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.main?.openUrl(modelData.url)
             }
-        }
-    }
-    Process {
-        id: userProcess
 
-        command: platform === 'gitlab' ? ["glab", "api", "/user", "--output", "ndjson"] : ["gh", "api", "user", "--jq", "[.login, .avatar_url, .bio] | @tsv"]
-        running: false
+            ColumnLayout {
+                id: itemContent
 
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    if (platform === 'gitlab') {
-                        const user = JSON.parse(data);
-                        root.user = {
-                            name: user.username || "",
-                            avatar: user.avatar_url || "",
-                            bio: user.bio || ""
-                        };
-                    } else {
-                        const parts = data.trim().split("\t");
-                        root.user = {
-                            name: parts[0] || "",
-                            avatar: parts[1] || "",
-                            bio: parts[2] || ""
-                        };
-                    }
-                } catch (error) {
-                    Logger.e(error.message);
+                anchors.fill: parent
+                anchors.margins: Style.marginM
+                spacing: Style.marginXXS
+
+                NText {
+                    Layout.fillWidth: true
+                    text: modelData.title ?? ""
+                    elide: Text.ElideRight
+                    pointSize: Style.fontSizeM
+                    font.weight: Font.Bold
+                    color: itemMouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
+                }
+                NText {
+                    Layout.fillWidth: true
+                    text: modelData.ref ?? ""
+                    elide: Text.ElideRight
+                    pointSize: Style.fontSizeXXS
+                    color: itemMouseArea.containsMouse ? Color.mOnHover : Color.mOnSurfaceVariant
                 }
             }
         }
-
-        onExited: exitCode => {
-            if (exitCode === 0) {
-                pluginApi.pluginSettings.user = root.user;
-                pluginApi.saveSettings();
-            }
-            repoProcess.running = true;
-        }
     }
-    Process {
-        id: repoProcess
 
-        command: platform === 'gitlab' ? ["glab", "repo", "list", "--output", "json"] : ["gh", "repo", "list", "--no-archived", "--json", "name"]
-        running: false
-
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    const repos = JSON.parse(data);
-                    const list = [];
-                    for (let i = 0; i < repos.length; i++) {
-                        list.push({
-                            name: repos[i].name,
-                            key: repos[i].name
-                        });
-                    }
-                    root.repoList = list;
-                } catch (e) {
-                    Logger.e(e.message);
-                }
-            }
-        }
-
-        onExited: exitCode => {
-            if (exitCode === 0) {
-                pluginApi.pluginSettings.repoList = root.repoList;
-                pluginApi.saveSettings();
-            }
-            issueProcess.running = true;
-            prProcess.running = true;
-        }
-    }
-    Process {
-        id: issueProcess
-
-        command: platform === 'gitlab' ? ["glab", "issue", "list", "--repo", root.user.name + "/" + root.selectedRepo, "--assignee", "@me", "--opened", "--output", "json"] : ["gh", "search", "issues", "--repo", root.user.name + "/" + root.selectedRepo, "--assignee", "@me", "--state", "open", "--json", "title,number,state,body,author,assignees,labels"]
-        running: false
-
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    const parsed = JSON.parse(data);
-                    root.issues = parsed.length === 0 ? "0" : parsed.length;
-                } catch (e) {
-                    Logger.e(e.message);
-                }
-            }
-        }
-
-        onExited: exitCode => {
-            if (exitCode === 0) {
-                pluginApi.pluginSettings.issues = root.issues;
-                pluginApi.saveSettings();
-            }
-        }
-    }
-    Process {
-        id: prProcess
-
-        command: platform === 'gitlab' ?
-            ["glab", "mr", "list", "--repo", root.user.name + "/" + root.selectedRepo, "--assignee", "@me", "--opened", "--output", "json"] :
-            ["gh", "search", "prs", "--repo", root.user.name + "/" + root.selectedRepo, "--assignee", "@me", "--state", "open", "--json", "title,number,state,body,author,assignees,labels"]
-        running: false
-
-        stdout: SplitParser {
-            onRead: data => {
-                try {
-                    const parsed = JSON.parse(data);
-                    root.prs = parsed.length === 0 ? "0" : parsed.length;
-                } catch (e) {
-                    Logger.e(e.message);
-                }
-            }
-        }
-
-        onExited: exitCode => {
-            if (exitCode === 0) {
-                pluginApi.pluginSettings.prs = root.prs;
-                pluginApi.saveSettings();
-            }
-        }
-    }
     Rectangle {
         id: panelContainer
 
@@ -225,275 +90,315 @@ Item {
         color: "transparent"
 
         ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: Style.marginL
             spacing: Style.marginL
 
-            anchors {
-                fill: parent
-                margins: Style.marginL
-            }
-
-            // HEADER
+            // HEADER (title row + tab row in a single card)
             NBox {
-                Layout.fillWidth: true
-                implicitHeight: headerRow.implicitHeight + Style.margin2M
+                id: headerBox
 
-                RowLayout {
-                    id: headerRow
+                Layout.fillWidth: true
+                implicitHeight: headerColumn.implicitHeight + Style.margin2M
+
+                ColumnLayout {
+                    id: headerColumn
 
                     anchors.fill: parent
                     anchors.margins: Style.marginM
                     spacing: Style.marginM
 
-                    NIcon {
-                        color: Color.mPrimary
-                        icon: platform === 'gitlab' ? "brand-gitlab" : "brand-github"
-                        pointSize: Style.fontSizeXXL
-                    }
-                    ColumnLayout {
+                    RowLayout {
+                        id: headerRow
+
                         Layout.fillWidth: true
-                        spacing: Style.marginXXS
+                        spacing: Style.marginM
 
-                        NText {
-                            Layout.fillWidth: true
-                            color: Color.mOnSurface
-                            elide: Text.ElideRight
-                            font.weight: Style.fontWeightBold
-                            pointSize: Style.fontSizeL
-                            text: pluginApi?.tr("panel.title")
+                        NIcon {
+                            color: Color.mPrimary
+                            icon: root.platform === 'gitlab' ? "brand-gitlab" : "brand-github"
+                            pointSize: Style.fontSizeXXL
                         }
-                    }
-                    NIconButton {
-                        baseSize: Style.baseWidgetSize * 0.8
-                        icon: "settings"
-                        tooltipText: I18n.tr("common.settings")
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: Style.marginXXS
 
-                        onClicked: {
-                            // Use panelOpenScreen to get the screen this panel is on
-                            var screen = pluginApi?.panelOpenScreen;
-                            if (screen && pluginApi?.manifest) {
-                                BarService.openPluginSettings(screen, pluginApi.manifest);
+                            NText {
+                                Layout.fillWidth: true
+                                color: Color.mOnSurface
+                                elide: Text.ElideRight
+                                font.weight: Style.fontWeightBold
+                                pointSize: Style.fontSizeL
+                                text: pluginApi?.tr("panel.title")
+                            }
+                        }
+                        NIconButton {
+                            baseSize: Style.baseWidgetSize * 0.8
+                            icon: "refresh"
+                            tooltipText: pluginApi?.tr("panel.refresh")
+
+                            onClicked: root.main?.refresh()
+                        }
+                        NIconButton {
+                            baseSize: Style.baseWidgetSize * 0.8
+                            icon: "settings"
+                            tooltipText: I18n.tr("common.settings")
+
+                            onClicked: {
+                                var screen = pluginApi?.panelOpenScreen;
+                                if (screen && pluginApi?.manifest) {
+                                    BarService.openPluginSettings(screen, pluginApi.manifest);
+                                }
+                            }
+                        }
+                        NIconButton {
+                            baseSize: Style.baseWidgetSize * 0.8
+                            icon: "close"
+                            tooltipText: I18n.tr("common.close")
+
+                            onClicked: {
+                                pluginApi?.closePanel(pluginApi?.panelOpenScreen);
                             }
                         }
                     }
-                    NIconButton {
-                        baseSize: Style.baseWidgetSize * 0.8
-                        icon: "close"
-                        tooltipText: I18n.tr("common.close")
 
-                        onClicked: {
-                            pluginApi?.closePanel(pluginApi?.panelOpenScreen);
+                    NDivider {
+                        Layout.fillWidth: true
+                        visible: userRow.visible || tabBar.visible
+                    }
+
+                    // User info — second row of the header card. Hidden until
+                    // we have a username; the surrounding ColumnLayout reclaims
+                    // the row's height automatically.
+                    RowLayout {
+                        id: userRow
+
+                        Layout.fillWidth: true
+                        spacing: Style.marginM
+                        visible: root.ready && (root.main?.username ?? "").length > 0
+
+                        NImageRounded {
+                            Layout.alignment: Qt.AlignVCenter
+                            borderColor: Color.mPrimary
+                            borderWidth: 2
+                            fallbackIcon: "user"
+                            fallbackIconSize: 24
+                            height: Math.round(40 * Style.uiScaleRatio)
+                            imagePath: root.main?.avatarUrl ?? ""
+                            radius: Math.min(Style.radiusL, width / 2)
+                            width: Math.round(40 * Style.uiScaleRatio)
+                        }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: Style.marginXS
+
+                            NText {
+                                Layout.fillWidth: true
+                                color: Color.mOnSurface
+                                elide: Text.ElideRight
+                                font.weight: Font.Bold
+                                pointSize: Style.fontSizeM
+                                text: root.main?.username ?? ""
+                            }
+                            NText {
+                                Layout.fillWidth: true
+                                color: Color.mOnSurface
+                                elide: Text.ElideRight
+                                font.weight: Font.Thin
+                                pointSize: Style.fontSizeXS
+                                text: root.main?.bio || "No bio"
+                            }
+                        }
+                    }
+
+                    // Tab bar (PRs/MRs vs Issues) — third row of the header card.
+                    // Hidden in error/no-scope states so the card collapses to
+                    // fewer rows.
+                    NTabBar {
+                        id: tabBar
+
+                        Layout.fillWidth: true
+                        distributeEvenly: true
+                        spacing: Style.marginXS
+                        tabHeight: Style.toOdd(Style.baseWidgetSize * 0.8)
+                        visible: root.showLists
+
+                        NTabButton {
+                            tabIndex: 0
+                            pointSize: Style.fontSizeXS
+                            checked: tabBar.currentIndex === 0
+                            text: pluginApi?.tr(root.platform === 'gitlab' ? "panel.mr-count" : "panel.pr-count", {
+                                count: root.main?.prsCount ?? 0
+                            })
+                        }
+                        NTabButton {
+                            tabIndex: 1
+                            pointSize: Style.fontSizeXS
+                            checked: tabBar.currentIndex === 1
+                            text: pluginApi?.tr("panel.issues-count", {
+                                count: root.main?.issuesCount ?? 0
+                            })
                         }
                     }
                 }
             }
-            NScrollView {
-                id: gitScrollView
 
-                Layout.fillHeight: true
+            // Unified error/notice box (bin missing, auth failed, no scope).
+            // Visible whenever we are *definitively* not in the lists state and
+            // not still loading. The three error cases are then disambiguated
+            // by inspecting the underlying flags.
+            NBox {
+                id: statusBox
+
+                readonly property bool binMissing: !(root.main?.isBinInstalled ?? false)
+                readonly property bool authMissing: !binMissing && !(root.main?.isAuthenticated ?? false)
+
+                readonly property string statusIcon: binMissing ? (root.platform === 'gitlab' ? "brand-gitlab" : "brand-github") : authMissing ? "user-exclamation" : "alert-triangle"
+                readonly property string statusText: binMissing ? (pluginApi?.tr("panel.bin-not-installed", {
+                        bin: root.bin
+                    }) ?? "") : authMissing ? (pluginApi?.tr("panel.auth-error", {
+                        bin: root.bin
+                    }) ?? "") : (pluginApi?.tr("panel.no-scope") ?? "")
+
                 Layout.fillWidth: true
-                gradientColor: Color.mSurface
-                horizontalPolicy: ScrollBar.AlwaysOff
-                reserveScrollbarSpace: false
-                verticalPolicy: ScrollBar.AsNeeded
+                Layout.preferredHeight: statusError.implicitHeight + Style.margin2M
+                visible: !root.showLists && !(root.main?.loading ?? false)
 
                 ColumnLayout {
-                    id: mainColumn
+                    id: statusError
 
-                    spacing: Style.marginM
-                    width: gitScrollView.availableWidth
+                    anchors.fill: parent
+                    anchors.margins: Style.marginM
+                    spacing: Style.marginL
 
-                    // Error message
-                    NBox {
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: binError.implicitHeight + Style.margin2M
-                        visible: !root.isBinInstalled
-
-                        // Error Title
-                        ColumnLayout {
-                            id: binError
-
-                            anchors.fill: parent
-                            anchors.margins: Style.marginM
-                            spacing: Style.marginL
-
-                            NIcon {
-                                Layout.alignment: Qt.AlignHCenter
-                                color: Color.mOnSurfaceVariant
-                                icon: platform === 'gitlab' ? "brand-gitlab" : "brand-github"
-                                pointSize: Style.fontSizeXXL
-                            }
-                            NText {
-                                Layout.fillWidth: true
-                                color: Color.mOnSurfaceVariant
-                                horizontalAlignment: Text.AlignHLeft
-                                pointSize: Style.fontSizeL
-                                text: bin + " is not installed. Please install it to use this plugin."
-                                wrapMode: Text.WordWrap
-                            }
-                        }
+                    NIcon {
+                        Layout.alignment: Qt.AlignHCenter
+                        color: Color.mOnSurfaceVariant
+                        icon: statusBox.statusIcon
+                        pointSize: Style.fontSizeXXL
                     }
-
-                    NBox {
+                    NText {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: authError.implicitHeight + Style.margin2M
-                        visible: root.isBinInstalled && !root.isAuthenticated
-
-                        // Error Title
-                        ColumnLayout {
-                            id: authError
-
-                            anchors.fill: parent
-                            anchors.margins: Style.marginM
-                            spacing: Style.marginL
-
-                            NIcon {
-                                Layout.alignment: Qt.AlignHCenter
-                                color: Color.mOnSurfaceVariant
-                                icon: "user-exclamation"
-                                pointSize: Style.fontSizeXXL
-                            }
-                            NText {
-                                Layout.fillWidth: true
-                                color: Color.mOnSurfaceVariant
-                                horizontalAlignment: Text.AlignHLeft
-                                pointSize: Style.fontSizeL
-                                text: pluginApi?.tr("panel.auth-error") + bin + " auth login."
-                                wrapMode: Text.WordWrap
-                            }
-                        }
+                        color: Color.mOnSurfaceVariant
+                        horizontalAlignment: Text.AlignHLeft
+                        pointSize: Style.fontSizeL
+                        text: statusBox.statusText
+                        wrapMode: Text.WordWrap
                     }
+                }
+            }
 
-                    // User info
-                    NBox {
-                        id: userBox
+            // Tab view container (lets NTabView fill remaining vertical space)
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: root.showLists
 
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: userColumn.implicitHeight + Style.margin2M
-                        visible: root.isBinInstalled && root.isAuthenticated && !loading
+                NTabView {
+                    id: tabView
+
+                    anchors.fill: parent
+                    currentIndex: tabBar.currentIndex
+
+                    // Tab 0: PRs / MRs
+                    Item {
+                        height: tabView.height
 
                         ColumnLayout {
-                            id: userColumn
-
                             anchors.fill: parent
-                            anchors.margins: Style.marginM
-                            spacing: Style.marginL
+                            spacing: Style.marginXS
 
-                            RowLayout {
+                            NBox {
                                 Layout.fillWidth: true
-                                spacing: Style.marginM
+                                Layout.fillHeight: true
 
-                                NImageRounded {
-                                    Layout.alignment: Qt.AlignHCenter
-                                    borderColor: Color.mPrimary
-                                    borderWidth: 2
-                                    fallbackIcon: "user"
-                                    fallbackIconSize: 24
-                                    height: Math.round(40 * Style.uiScaleRatio)
-                                    imagePath: root.user.avatar
-                                    radius: Math.min(Style.radiusL, width / 2)
-                                    width: Math.round(40 * Style.uiScaleRatio)
+                                ListView {
+                                    id: prListView
+
+                                    anchors.fill: parent
+                                    anchors.margins: Style.marginS
+                                    clip: true
+                                    interactive: true
+                                    model: root.main?.prsList ?? []
+                                    delegate: itemDelegate
+                                    spacing: Style.marginM
+                                    visible: (root.main?.prsList?.length ?? 0) > 0
+
+                                    ScrollBar.vertical: ScrollBar {}
                                 }
-                                ColumnLayout {
-                                    Layout.fillWidth: true
-                                    spacing: Style.marginXS
 
-                                    NText {
-                                        Layout.fillWidth: true
-                                        color: Color.mOnSurface
-                                        elide: Text.ElideRight
-                                        font.weight: Font.Bold
-                                        pointSize: Style.fontSizeM
-                                        text: root.user.name
-                                    }
-                                    NText {
-                                        Layout.fillWidth: true
-                                        color: Color.mOnSurface
-                                        elide: Text.ElideRight
-                                        font.weight: Font.Thin
-                                        pointSize: Style.fontSizeXS
-                                        text: root.user.bio || "No bio"
-                                    }
+                                NText {
+                                    anchors.centerIn: parent
+                                    color: Color.mOnSurfaceVariant
+                                    pointSize: Style.fontSizeS
+                                    text: pluginApi?.tr("panel.loading")
+                                    visible: (root.main?.loading ?? false) && (root.main?.prsList?.length ?? 0) === 0
                                 }
-                                NIconButton {
-                                    baseSize: Style.baseWidgetSize * 0.8
-                                    icon: "refresh"
-                                    tooltipText: pluginApi?.tr("panel.refresh")
 
-                                    onClicked: startCheck()
+                                NText {
+                                    anchors.centerIn: parent
+                                    color: Color.mOnSurfaceVariant
+                                    pointSize: Style.fontSizeS
+                                    text: pluginApi?.tr(root.platform === 'gitlab' ? "panel.no-mrs" : "panel.no-prs")
+                                    visible: !root.main?.loading && (root.main?.prsList?.length ?? 0) === 0
                                 }
                             }
                         }
                     }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Style.marginM
-                        visible: !root.loading && root.isBinInstalled && root.isAuthenticated
+
+                    // Tab 1: Issues
+                    Item {
+                        height: tabView.height
 
                         ColumnLayout {
-                            Layout.fillWidth: true
+                            anchors.fill: parent
                             spacing: Style.marginS
 
-                            NComboBox {
-                                id: repoComboBox
-
+                            NBox {
                                 Layout.fillWidth: true
-                                currentKey: root.selectedRepo
-                                description: pluginApi?.tr("panel.repo.desc")
-                                label: pluginApi?.tr("panel.repo.label")
-                                model: root.repoList
+                                Layout.fillHeight: true
 
-                                onSelected: key => {
-                                    pluginApi.pluginSettings.selectedRepo = key;
-                                    pluginApi.saveSettings();
+                                ListView {
+                                    id: issueListView
+
+                                    anchors.fill: parent
+                                    anchors.margins: Style.marginS
+                                    clip: true
+                                    interactive: true
+                                    model: root.main?.issuesList ?? []
+                                    delegate: itemDelegate
+                                    spacing: Style.marginM
+                                    visible: (root.main?.issuesList?.length ?? 0) > 0
+
+                                    ScrollBar.vertical: ScrollBar {}
                                 }
-                            }
-                        }
-                    }
 
-                    // Repository info
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Style.marginS
-                        visible: !root.loading && root.isBinInstalled && root.isAuthenticated
-
-                        ColumnLayout {
-                            id: infoColumn
-
-                            spacing: Style.marginS
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Style.marginM
-
-                                NIcon {
-                                    color: Color.mOnSurfaceVariant
-                                    icon: "git-pull-request"
-                                    pointSize: Style.fontSizeL
-                                }
                                 NText {
+                                    anchors.centerIn: parent
                                     color: Color.mOnSurfaceVariant
-                                    font.pointSize: Style.fontSizeM
-                                    text: root.prString + " (" + root.prs + ")"
+                                    pointSize: Style.fontSizeS
+                                    text: pluginApi?.tr("panel.loading")
+                                    visible: (root.main?.loading ?? false) && (root.main?.issuesList?.length ?? 0) === 0
                                 }
-                            }
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: Style.marginM
 
-                                NIcon {
-                                    color: Color.mOnSurfaceVariant
-                                    icon: "circle-dot"
-                                    pointSize: Style.fontSizeL
-                                }
                                 NText {
+                                    anchors.centerIn: parent
                                     color: Color.mOnSurfaceVariant
-                                    font.pointSize: Style.fontSizeM
-                                    text: pluginApi?.tr("panel.issues") + " (" + root.issues + ")"
+                                    pointSize: Style.fontSizeS
+                                    text: pluginApi?.tr("panel.no-issues")
+                                    visible: !root.main?.loading && (root.main?.issuesList?.length ?? 0) === 0
                                 }
                             }
                         }
                     }
                 }
+            }
+
+            // Bottom spacer: keeps header and error block top-aligned when lists are hidden
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                visible: !root.showLists
             }
         }
     }

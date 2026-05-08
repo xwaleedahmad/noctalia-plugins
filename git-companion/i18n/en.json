@@ -4,16 +4,21 @@
   },
   "panel": {
     "title": "Git Companion",
-    "repo": {
-      "desc": "Select a repository to display",
-      "label": "Repository"
-    },
     "issues": "Issues",
+    "issues-count": "Issues ({count})",
     "mr": "Merge Requests",
+    "mr-count": "Merge Requests ({count})",
     "pr": "Pull Requests",
-    "auth-error": "Please authenticate to use this plugin, using ",
+    "pr-count": "Pull Requests ({count})",
+    "auth-error": "Please authenticate to use this plugin, using {bin} auth login",
     "open-settings": "Open Plugin Settings",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "bin-not-installed": "{bin} is not installed. Please install it to use this plugin.",
+    "no-scope": "Set a Group or Repository in Settings to view items assigned to you.",
+    "no-prs": "No open pull requests",
+    "no-mrs": "No open merge requests",
+    "no-issues": "No open issues",
+    "loading": "Loading…"
   },
   "settings": {
     "platform": {
@@ -23,9 +28,24 @@
     "refreshInterval": {
       "desc": "How often to refresh data, in seconds.",
       "label": "Refresh Interval (s)"
+    },
+    "repo": {
+      "label": "Repository",
+      "desc": "Restrict to a specific repository (e.g. owner/repo). Leave empty to use Group."
+    },
+    "group": {
+      "label": "Group",
+      "desc": "GitLab group slug. Takes precedence over Repository when set."
+    },
+    "org": {
+      "label": "Organization",
+      "desc": "GitHub organization. Leave empty to search globally across all your repos."
     }
   },
   "widget": {
-    "tooltip": "Hello World"
+    "tooltip": "{issues} Issues - {requestCount} {requestLabel}"
+  },
+  "desktop": {
+    "text": "{issues} Issues - {requestCount} {requestLabel}"
   }
 }
