@@ -29,6 +29,15 @@ Item {
     property bool compactMode: _computeCompactMode()
     property bool showIpAddress: _computeShowIpAddress()
     property bool showPing: _computeShowPing()
+    property string configuredManagementUrl: _computeConfiguredManagementUrl()
+    readonly property string adminConsoleUrl: {
+        var configured = normalizeManagementUrl(configuredManagementUrl);
+        if (configured !== "")
+            return configured;
+        if (managementUrlDetected !== "")
+            return managementUrlDetected;
+        return normalizeManagementUrl(pluginApi?.manifest?.metadata?.defaultSettings?.managementUrl || "https://app.netbird.io/");
+    }
 
     function _computeRefreshInterval() {
         return pluginApi?.pluginSettings?.refreshInterval ?? 5000;
@@ -42,12 +51,50 @@ Item {
     function _computeShowPing() {
         return pluginApi?.pluginSettings?.showPing ?? false;
     }
+    function _computeConfiguredManagementUrl() {
+        return pluginApi?.pluginSettings?.managementUrl ?? "";
+    }
+
+	function normalizeManagementUrl(rawUrl) {
+	  const url = String(rawUrl || "").trim();
+	  if (!url) return "";
+	
+	  if (/^https?:\/\//i.test(url)) return url;
+	
+	  const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/i.test(url);
+	  return `${isLocal ? "http" : "https"}://${url}`;
+	}
+
+    function extractManagementUrl(data) {
+        if (!data)
+            return "";
+
+        var management = data.management || ({});
+        var candidates = [
+            management.url,
+            management.managementUrl,
+            management.fqdn,
+            management.address,
+            management.endpoint,
+            management.domain,
+            data.managementUrl
+        ];
+
+        for (var i = 0; i < candidates.length; i++) {
+            var normalized = normalizeManagementUrl(candidates[i]);
+            if (normalized !== "")
+                return normalized;
+        }
+
+        return "";
+    }
 
     onSettingsVersionChanged: {
         refreshInterval = _computeRefreshInterval();
         compactMode = _computeCompactMode();
         showIpAddress = _computeShowIpAddress();
         showPing = _computeShowPing();
+        configuredManagementUrl = _computeConfiguredManagementUrl();
         updateTimer.interval = refreshInterval;
     }
 
@@ -63,6 +110,7 @@ Item {
     property var peerList: []
     property bool managementConnected: false
     property bool signalConnected: false
+    property string managementUrlDetected: ""
 
     property var peerPings: ({})
     property var pingQueue: []
@@ -147,6 +195,7 @@ Item {
 
                     root.managementConnected = data.management?.connected ?? false;
                     root.signalConnected = data.signal?.connected ?? false;
+                    root.managementUrlDetected = root.extractManagementUrl(data);
 
                     root.netbirdRunning = root.managementConnected;
 
@@ -187,12 +236,14 @@ Item {
                         root.peerCount = 0;
                         root.peerConnected = 0;
                         root.peerList = [];
+                        root.managementUrlDetected = "";
                     }
                 } catch (e) {
                     Logger.e("NetBird", "Failed to parse status: " + e);
                     root.netbirdRunning = false;
                     root.netbirdStatus = "Error";
                     root.peerList = [];
+                    root.managementUrlDetected = "";
                 }
             } else {
                 root.netbirdRunning = false;
@@ -202,6 +253,7 @@ Item {
                 root.peerCount = 0;
                 root.peerConnected = 0;
                 root.peerList = [];
+                root.managementUrlDetected = "";
             }
         }
     }
@@ -348,7 +400,8 @@ Item {
                 "fqdn": root.netbirdFqdn,
                 "status": root.netbirdStatus,
                 "peers": root.peerCount,
-                "peersConnected": root.peerConnected
+                "peersConnected": root.peerConnected,
+                "managementUrl": root.adminConsoleUrl
             };
         }
 

@@ -19,10 +19,10 @@
     {
       "id": "air-quality",
       "name": "Air Quality",
-      "version": "1.0.0",
+      "version": "1.1.1",
       "official": false,
       "author": "adriamartin91",
-      "description": "Displays real-time air quality data from Open-Meteo with EPA color coding. Shows AQI index and pollutant breakdown.",
+      "description": "Displays real-time air quality data with EPA color coding. Supports Open-Meteo and AQICN data sources. Shows AQI index and pollutant breakdown.",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "3.6.0",
       "license": "MIT",
@@ -33,12 +33,12 @@
         "System",
         "Utility"
       ],
-      "lastUpdated": "2026-04-05T23:04:09+07:00"
+      "lastUpdated": "2026-04-13T17:44:48+02:00"
     },
     {
       "id": "arch-updater",
       "name": "Arch Updater",
-      "version": "1.1.2",
+      "version": "2.1.4",
       "official": false,
       "author": "Ast",
       "description": "A plugin to manage updates on Arch",
@@ -49,10 +49,11 @@
         "Bar",
         "Desktop",
         "Panel",
+        "Launcher",
         "System",
         "Utility"
       ],
-      "lastUpdated": "2026-04-09T00:51:24+07:00"
+      "lastUpdated": "2026-05-05T11:43:03+01:00"
     },
     {
       "id": "assistant-panel",
@@ -76,7 +77,7 @@
     {
       "id": "asus-um5606-fan-state",
       "name": "ASUS UM5606 Fan State",
-      "version": "1.1.5",
+      "version": "1.1.7",
       "official": false,
       "author": "ThatOneCalculator",
       "description": "Set the fan state on the ZenBook S 16 UM5606",
@@ -87,12 +88,12 @@
         "Bar",
         "System"
       ],
-      "lastUpdated": "2026-04-01T17:39:18-04:00"
+      "lastUpdated": "2026-04-21T17:30:13+02:00"
     },
     {
       "id": "battery-actions",
       "name": "Battery Actions",
-      "version": "1.0.1",
+      "version": "1.0.3",
       "official": false,
       "author": "itscrystalline",
       "description": "A plugin that allows you to run custom actions when battery state changes.",
@@ -102,12 +103,12 @@
       "tags": [
         "System"
       ],
-      "lastUpdated": "2026-02-26T19:55:06+01:00"
+      "lastUpdated": "2026-04-25T13:10:34+02:00"
     },
     {
       "id": "battery-threshold",
       "name": "Battery Threshold Control",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "official": false,
       "author": "Wilfred Mallawa",
       "description": "Set the battery threshold for laptop batteries to extend battery lifespan",
@@ -119,28 +120,28 @@
         "Panel",
         "System"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-25T13:16:18+02:00"
     },
     {
       "id": "calendar-widget",
       "name": "Desktop Calendar",
-      "version": "1.0.5",
+      "version": "1.0.10",
       "official": false,
       "author": "Simon",
       "description": "Monthly calendar with today highlighted.",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "4.6.6",
+      "minNoctaliaVersion": "4.5.0",
       "license": "MIT",
       "tags": [
         "Desktop",
         "Utility"
       ],
-      "lastUpdated": "2026-04-06T17:15:27+02:00"
+      "lastUpdated": "2026-04-25T13:17:01+02:00"
     },
     {
       "id": "calibre-provider",
       "name": "Calibre Provider",
-      "version": "1.3.1",
+      "version": "1.3.3",
       "official": false,
       "author": "Krendil",
       "description": "Search for books in your Calibre library",
@@ -150,7 +151,7 @@
       "tags": [
         "Launcher"
       ],
-      "lastUpdated": "2026-03-05T13:10:48+10:00"
+      "lastUpdated": "2026-04-25T13:24:07+02:00"
     },
     {
       "id": "catwalk",
@@ -171,13 +172,31 @@
       "lastUpdated": "2026-03-29T19:05:12-04:00"
     },
     {
-      "id": "clipper",
-      "name": "Clipper",
-      "version": "2.3.1",
+      "id": "claude-code-panel",
+      "name": "Claude Code Panel",
+      "version": "0.2.0",
       "official": false,
-      "author": "blackbartblues",
-      "description": "Advanced clipboard manager with history, search, keyboard navigation, ToDo integration, pinned items, notecards/sticky notes, and selection-to-notecard feature. Fully translated with comprehensive i18n support.",
-      "repository": "https://github.com/blackbartblues/noctalia-clipper",
+      "author": "d7om",
+      "description": "Claude Code (Anthropic agentic CLI) with full tool access, permission controls, session management, MCP servers, and device integration",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.1.2",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "AI",
+        "Productivity"
+      ],
+      "lastUpdated": "2026-04-25T02:40:15+03:00"
+    },
+    {
+      "id": "clipboard",
+      "name": "Clipboard",
+      "version": "1.0.3",
+      "official": false,
+      "author": "yanekyuk",
+      "description": "Clipboard history panel with search, pinning, and image previews.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "4.1.2",
       "license": "MIT",
       "tags": [
@@ -185,12 +204,29 @@
         "Bar",
         "Panel"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-22T18:29:07+03:00"
+    },
+    {
+      "id": "clipper",
+      "name": "Clipper",
+      "version": "2.4.4",
+      "official": false,
+      "author": "blackbartblues",
+      "description": "Advanced clipboard manager with history, search, keyboard navigation, ToDo integration, pinned items, notecards/sticky notes, and selection-to-notecard feature. Fully translated with comprehensive i18n support.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.1.2",
+      "license": "MIT",
+      "tags": [
+        "Utility",
+        "Bar",
+        "Panel"
+      ],
+      "lastUpdated": "2026-04-26T19:41:25+02:00"
     },
     {
       "id": "cloudflare-warp",
       "name": "Cloudflare WARP",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "ToRvaLDz",
       "description": "Toggle Cloudflare WARP from the bar. Shows connection status and mode.",
@@ -202,12 +238,12 @@
         "Network",
         "Panel"
       ],
-      "lastUpdated": "2026-04-05T20:30:40+02:00"
+      "lastUpdated": "2026-04-11T18:01:28+07:00"
     },
     {
       "id": "coin-flip",
       "name": "Coin Flipper",
-      "version": "1.1.2",
+      "version": "1.2.1",
       "official": false,
       "author": "DanisDeveloper",
       "description": "Simple bar widget with notification about result",
@@ -216,12 +252,12 @@
       "tags": [
         "Bar"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-13T17:37:28+02:00"
     },
     {
       "id": "color-scheme-creator",
       "name": "Color Scheme Creator",
-      "version": "1.0.4",
+      "version": "1.0.5",
       "official": true,
       "author": "Noctalia Team",
       "description": "Create and manage custom predefined color schemes with a visual color editor.",
@@ -232,12 +268,28 @@
         "Theming",
         "Utility"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-25T13:28:18+02:00"
+    },
+    {
+      "id": "cookie-clock",
+      "name": "Cookie Clock",
+      "version": "1.0.1",
+      "official": false,
+      "author": "elrondforwin",
+      "description": "An analog cookie-shaped clock desktop widget. Features a sine-wave cookie background, hour/minute/second hands, dial marks and date bubbless.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "GPLv3",
+      "tags": [
+        "Desktop",
+        "Fun"
+      ],
+      "lastUpdated": "2026-04-23T21:39:21+02:00"
     },
     {
       "id": "currency-exchange",
       "name": "Currency Exchange",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "balor",
       "description": "Currency conversion utility via launcher and bar widget",
@@ -248,7 +300,7 @@
         "Launcher",
         "Utility"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-05-04T14:10:38+09:00"
     },
     {
       "id": "custom-commands",
@@ -268,7 +320,7 @@
     {
       "id": "custom-sticker",
       "name": "Custom Stickers",
-      "version": "1.0.1",
+      "version": "1.0.3",
       "official": false,
       "author": "spiros132",
       "description": "Custom stickers (images) that you can put on the desktop as desktop widgets.",
@@ -279,12 +331,12 @@
         "Desktop",
         "Fun"
       ],
-      "lastUpdated": "2026-03-20T21:37:46+01:00"
+      "lastUpdated": "2026-05-01T21:07:15+02:00"
     },
     {
       "id": "daily-wallpaper",
       "name": "Daily Wallpaper",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "DigitallyRefined",
       "description": "Fetches a new daily wallpaper from Bing or NASA",
@@ -296,7 +348,7 @@
         "Fun",
         "Utility"
       ],
-      "lastUpdated": "2026-04-06T20:53:50+01:00"
+      "lastUpdated": "2026-04-21T17:31:45+02:00"
     },
     {
       "id": "deskvis",
@@ -314,6 +366,25 @@
       "lastUpdated": "2026-03-20T22:21:12+01:00"
     },
     {
+      "id": "dmenu",
+      "name": "Dmenu Provider",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Ben Hilton",
+      "description": "An IPC-driven dmenu replacement that lets external scripts present choices through a Noctalia panel.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.9.0",
+      "license": "MIT",
+      "tags": [
+        "Panel",
+        "Productivity",
+        "Developer",
+        "System",
+        "Utility"
+      ],
+      "lastUpdated": "2026-04-13T17:24:58-06:00"
+    },
+    {
       "id": "dns-switcher",
       "name": "DNS Switcher",
       "version": "1.2.1",
@@ -328,6 +399,23 @@
         "Network"
       ],
       "lastUpdated": "2026-03-29T19:05:12-04:00"
+    },
+    {
+      "id": "ds4-colors",
+      "name": "DS4 Colors",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Hy4ri",
+      "description": "Change the lightbar color of your DualShock 4 or DualSense controller with a color picker and recent color history.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Hardware",
+        "Gaming",
+        "Bar"
+      ],
+      "lastUpdated": "2026-04-29T14:11:25+03:00"
     },
     {
       "id": "fancy-audiovisualizer",
@@ -348,7 +436,7 @@
     {
       "id": "file-search",
       "name": "File Search",
-      "version": "1.0.1",
+      "version": "1.0.4",
       "official": false,
       "author": "ericbreh",
       "description": "File search from the launcher.",
@@ -359,7 +447,7 @@
         "Launcher",
         "Productivity"
       ],
-      "lastUpdated": "2026-03-29T17:18:54-07:00"
+      "lastUpdated": "2026-04-29T19:24:11+08:00"
     },
     {
       "id": "giphy-search",
@@ -381,7 +469,7 @@
     {
       "id": "github-feed",
       "name": "GitHub Feed",
-      "version": "1.2.1",
+      "version": "1.3.1",
       "official": false,
       "author": "linuxmobile",
       "description": "Display GitHub activity from users you follow and activity on your repos",
@@ -394,7 +482,24 @@
         "Development",
         "Network"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-28T17:48:46+02:00"
+    },
+    {
+      "id": "hassio",
+      "name": "Home Assistant",
+      "version": "1.0.1",
+      "official": false,
+      "author": "Pozzoo",
+      "description": "Monitor and control Home Assistant entities from the bar. Requires qt6-websockets.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "Utility"
+      ],
+      "lastUpdated": "2026-04-23T15:13:24+02:00"
     },
     {
       "id": "hello-world",
@@ -443,7 +548,7 @@
     {
       "id": "hyprland-visual-editor",
       "name": "Hyprland Visual Editor",
-      "version": "1.0.1",
+      "version": "1.0.3",
       "official": false,
       "author": "XimoCP",
       "description": "Elevate your Hyprland experience. A modular plugin to safely inject custom animations, borders, and visual effects on the fly.",
@@ -459,7 +564,7 @@
         "Utility",
         "Hyprland"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-20T15:07:05+02:00"
     },
     {
       "id": "ideapad-battery-health",
@@ -481,7 +586,7 @@
     {
       "id": "ip-monitor",
       "name": "IP Monitor",
-      "version": "0.0.2",
+      "version": "0.1.2",
       "official": false,
       "author": "deepalpha",
       "description": "Plugin showing current external IP",
@@ -491,7 +596,7 @@
       "tags": [
         "Development"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-14T20:44:12+07:00"
     },
     {
       "id": "kagi-quick-search",
@@ -562,9 +667,43 @@
       "lastUpdated": "2026-04-07T22:03:44+02:00"
     },
     {
+      "id": "khal-agenda-widget",
+      "name": "Khal Agenda Info",
+      "version": "1.0.2",
+      "official": false,
+      "author": "Simon",
+      "description": "Shows khal agenda.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Desktop",
+        "System"
+      ],
+      "lastUpdated": "2026-04-14T21:58:06+02:00"
+    },
+    {
+      "id": "kubectl-ctx",
+      "name": "Kubectl Context",
+      "version": "1.0.4",
+      "official": false,
+      "author": "ultherego",
+      "description": "Kubernetes context and namespace switcher with resource browser powered by kubectl.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "Utility",
+        "Development"
+      ],
+      "lastUpdated": "2026-04-23T23:03:50+02:00"
+    },
+    {
       "id": "latency-monitor",
       "name": "Latency Monitor",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "official": false,
       "author": "Borhaneddine GUEMIDI <guemidiborhane@gmail.com>",
       "description": "Network latency monitor — multi-host, windowed averages, sparkline graphs",
@@ -576,12 +715,12 @@
         "Panel",
         "Network"
       ],
-      "lastUpdated": "2026-04-05T22:01:32+01:00"
+      "lastUpdated": "2026-04-23T21:41:29+02:00"
     },
     {
       "id": "linux-wallpaperengine-controller",
       "name": "Linux WallpaperEngine Controller",
-      "version": "1.0.6",
+      "version": "1.2.1",
       "official": false,
       "author": "PaloMiku",
       "description": "Control linux-wallpaperengine from Noctalia with per-screen wallpaper selection.",
@@ -593,7 +732,23 @@
         "Panel",
         "Theming"
       ],
-      "lastUpdated": "2026-04-07T10:24:52+08:00"
+      "lastUpdated": "2026-04-22T19:54:38+08:00"
+    },
+    {
+      "id": "lyrics-fetch",
+      "name": "Lyrics Fetch/Bar Display",
+      "version": "1.1.1",
+      "official": false,
+      "author": "Pever3ll",
+      "description": "Uses MPRIS data to fetch song lyrics from lrclib.net and displays it in the bar.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "GPLv3",
+      "tags": [
+        "Bar",
+        "Music"
+      ],
+      "lastUpdated": "2026-04-25T13:09:06+02:00"
     },
     {
       "id": "mangowc-layout-switcher",
@@ -615,7 +770,7 @@
     {
       "id": "mawaqit",
       "name": "Mawaqit",
-      "version": "1.3.5",
+      "version": "1.3.7",
       "official": false,
       "author": "User",
       "description": "Shows prayer times with a live countdown and a Hijri calendar with Islamic events.",
@@ -626,12 +781,12 @@
         "Bar",
         "Panel"
       ],
-      "lastUpdated": "2026-04-02T17:48:27-06:00"
+      "lastUpdated": "2026-04-15T16:35:10+02:00"
     },
     {
       "id": "mimeapp-gui",
       "name": "MimeApp GUI",
-      "version": "1.0.1",
+      "version": "1.0.4",
       "official": false,
       "author": "Mathew-D",
       "description": "GUI for inspecting MIME handlers and updating default applications in mimeapps.list (requires python3).",
@@ -644,7 +799,7 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-20T21:30:27+02:00"
     },
     {
       "id": "mini-docker",
@@ -666,7 +821,7 @@
     {
       "id": "mirror-mirror",
       "name": "Mirror Mirror",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "official": false,
       "author": "Mathew-D",
       "description": "Mirror one monitor to another using wl-mirror.",
@@ -679,7 +834,7 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-04-02T12:04:15+08:00"
+      "lastUpdated": "2026-04-27T17:12:06-04:00"
     },
     {
       "id": "model-usage",
@@ -697,6 +852,43 @@
         "AI"
       ],
       "lastUpdated": "2026-03-29T19:05:12-04:00"
+    },
+    {
+      "id": "monique",
+      "name": "Monique",
+      "version": "1.1.0",
+      "official": false,
+      "author": "ToRvaLDz",
+      "description": "Switch monitor profiles from the bar. Shows the active profile and lets you switch between saved configurations.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.0.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "System",
+        "Panel"
+      ],
+      "lastUpdated": "2026-04-29T09:42:56+02:00"
+    },
+    {
+      "id": "monitor-layout",
+      "name": "Monitor Layout",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Mathew-D",
+      "description": "Arrange multiple displays visually and change their resolutions from a Noctalia panel.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "System",
+        "Utility",
+        "Sway",
+        "Hyprland"
+      ],
+      "lastUpdated": "2026-04-16T23:55:46-04:00"
     },
     {
       "id": "mpd",
@@ -718,7 +910,7 @@
     {
       "id": "mpris-lyric",
       "name": "MPRIS Lyric",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "DBeidachazi",
       "description": "Display synchronized lyrics from MPRIS-compatible music players (e.g., go-musicfox) in the bar.",
@@ -729,12 +921,12 @@
         "Bar",
         "Music"
       ],
-      "lastUpdated": "2026-03-18T09:37:17+08:00"
+      "lastUpdated": "2026-04-19T11:52:26+02:00"
     },
     {
       "id": "mpvpaper",
       "name": "Mpvpaper",
-      "version": "1.6.3",
+      "version": "1.6.4",
       "official": false,
       "author": "spiros132",
       "description": "A plugin that allows having video wallpapers using mpvpaper.",
@@ -747,12 +939,12 @@
         "Fun",
         "System"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-18T21:56:28+02:00"
     },
     {
       "id": "music-search",
       "name": "Music Search",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "official": false,
       "author": "kevichi7",
       "description": "Search YouTube, play audio in the background with mpv, and save favorites into a persistent library.",
@@ -766,12 +958,12 @@
         "Audio",
         "Music"
       ],
-      "lastUpdated": "2026-04-01T18:13:47+08:00"
+      "lastUpdated": "2026-04-18T22:02:45+02:00"
     },
     {
       "id": "netbird",
       "name": "NetBird",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "official": false,
       "author": "Cleboost",
       "description": "Show NetBird VPN status in the menu bar.",
@@ -783,24 +975,24 @@
         "Network",
         "Panel"
       ],
-      "lastUpdated": "2026-04-06T10:49:38-07:00"
+      "lastUpdated": "2026-04-25T19:50:31+02:00"
     },
     {
       "id": "network-indicator",
       "name": "Network Indicator",
-      "version": "1.0.7",
+      "version": "1.1.0",
       "official": false,
       "author": "tonigineer",
       "description": "A `lively` network traffic indicator.",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "3.7.5",
+      "minNoctaliaVersion": "4.7.6",
       "license": "MIT",
       "tags": [
         "Bar",
         "Network",
         "Indicator"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-27T20:19:40+02:00"
     },
     {
       "id": "network-manager-vpn",
@@ -822,7 +1014,7 @@
     {
       "id": "news",
       "name": "News Bar",
-      "version": "1.2.5",
+      "version": "1.2.6",
       "official": false,
       "author": "LazarH",
       "description": "Display scrolling news headlines from various sources using NewsAPI.org",
@@ -835,7 +1027,7 @@
         "Network",
         "Fun"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-18T23:08:10+02:00"
     },
     {
       "id": "niri-animation-picker",
@@ -889,6 +1081,23 @@
       "lastUpdated": "2026-02-05T11:41:54-08:00"
     },
     {
+      "id": "niri-workspaces",
+      "name": "Niri Workspaces",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Kohányi Róbert",
+      "description": "Filter, jump to, rename or reset Niri workspaces from the launcher.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.4.1",
+      "license": "MIT",
+      "tags": [
+        "Launcher",
+        "Utility",
+        "Niri"
+      ],
+      "lastUpdated": "2026-04-21T07:58:38+02:00"
+    },
+    {
       "id": "noctalia-calculator",
       "name": "Calculator",
       "version": "1.0.0",
@@ -923,6 +1132,22 @@
       "lastUpdated": "2026-02-23T20:48:07-05:00"
     },
     {
+      "id": "not-just-text",
+      "name": "Not Just Text",
+      "version": "1.0.1",
+      "official": false,
+      "author": "blackteaextract",
+      "description": "Displays custom text, fortune quotes, or a random entry from a user-provided text file in the bar.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.4.1",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Fun"
+      ],
+      "lastUpdated": "2026-04-13T22:31:42Z"
+    },
+    {
       "id": "notes-scratchpad",
       "name": "Notes Scratchpad",
       "version": "1.1.6",
@@ -938,6 +1163,24 @@
         "Productivity"
       ],
       "lastUpdated": "2026-03-29T19:05:12-04:00"
+    },
+    {
+      "id": "ntfy-notifications",
+      "name": "ntfy Notifications",
+      "version": "1.0.0",
+      "official": false,
+      "author": "maxe",
+      "description": "Subscribe to ntfy topics and receive push notifications directly in your bar, with full theming support",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.4.1",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "Network",
+        "Indicator"
+      ],
+      "lastUpdated": "2026-04-10T15:49:56+02:00"
     },
     {
       "id": "nvim-session-provider",
@@ -958,7 +1201,7 @@
     {
       "id": "obs-control",
       "name": "OBS Control",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "official": false,
       "author": "ayagmar",
       "description": "OBS recording, replay, and stream status widget for Noctalia.",
@@ -971,7 +1214,7 @@
         "Indicator",
         "Utility"
       ],
-      "lastUpdated": "2026-03-22T22:46:44+01:00"
+      "lastUpdated": "2026-04-18T22:24:44+02:00"
     },
     {
       "id": "openhue",
@@ -990,9 +1233,26 @@
       "lastUpdated": "2026-04-01T18:21:46+02:00"
     },
     {
+      "id": "osk-toggle",
+      "name": "OSK Toggle",
+      "version": "1.0.1",
+      "official": false,
+      "author": "blackteaextract",
+      "description": "Toggle an on-screen keyboard (Squeekboard or wvkbd) with live availability detection, hover icons, and configurable settings. Supersedes squeekboard-toggle.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.4.3",
+      "license": "MIT",
+      "tags": [
+        "System",
+        "Bar",
+        "Utility"
+      ],
+      "lastUpdated": "2026-04-27T21:47:50Z"
+    },
+    {
       "id": "parallax-wallpaper",
       "name": "Parallax Wallpaper",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "Qholin",
       "description": "A customizable parallax effect for the wallpaper based on the active workspace.",
@@ -1002,7 +1262,24 @@
       "tags": [
         "Desktop"
       ],
-      "lastUpdated": "2026-03-12T22:34:41+03:00"
+      "lastUpdated": "2026-04-21T17:26:58+02:00"
+    },
+    {
+      "id": "plugin-manager",
+      "name": "Plugin Manager",
+      "version": "1.0.1",
+      "official": false,
+      "author": "blacku",
+      "description": "A full-featured plugin manager with browsing, installation, and README viewer for Noctalia plugins.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "Development"
+      ],
+      "lastUpdated": "2026-04-29T22:11:00+02:00"
     },
     {
       "id": "polkit-agent",
@@ -1039,7 +1316,7 @@
     {
       "id": "port-monitor",
       "name": "Port Monitor",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "adriamartin91",
       "description": "Monitor listening ports and their processes. Shows TCP/UDP ports with process info and kill functionality.",
@@ -1053,12 +1330,12 @@
         "System",
         "Utility"
       ],
-      "lastUpdated": "2026-04-06T17:44:59+07:00"
+      "lastUpdated": "2026-04-19T11:51:23+02:00"
     },
     {
       "id": "privacy-indicator",
       "name": "Privacy Indicator",
-      "version": "1.2.8",
+      "version": "1.2.12",
       "official": true,
       "author": "Noctalia Team",
       "description": "A privacy indicator widget that shows when microphone, camera or screen sharing is active.",
@@ -1070,7 +1347,7 @@
         "Privacy",
         "Indicator"
       ],
-      "lastUpdated": "2026-04-08T21:53:19+02:00"
+      "lastUpdated": "2026-04-21T01:35:58+02:00"
     },
     {
       "id": "ramadan-iftar",
@@ -1099,6 +1376,22 @@
       "license": "MIT",
       "tags": [],
       "lastUpdated": "2026-03-29T19:05:12-04:00"
+    },
+    {
+      "id": "ru-menu",
+      "name": "RU Menu",
+      "version": "1.0.0",
+      "official": false,
+      "author": "Kermut572",
+      "description": "A simple plugin that fetches the current, past, and future weeks menu for UCLouvain's Restaurants Universitaires",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel"
+      ],
+      "lastUpdated": "2026-04-10T17:07:23+02:00"
     },
     {
       "id": "saved-desktop-widgets",
@@ -1134,26 +1427,27 @@
     },
     {
       "id": "screen-shot-and-record",
-      "name": "ScreenShot & Record in Hyprland",
-      "version": "1.0.2",
+      "name": "ScreenShot & Record",
+      "version": "1.0.5",
       "official": false,
       "author": "Pulsar",
-      "description": "A screenshot plugin with OCR, Google Lens integration, and screen recording. Only Support Hyprland.",
-      "repository": "https://github.com/Pulsar33550336/pulsar-ns-plugins",
+      "description": "A screenshot plugin with OCR, Google Lens integration, and screen recording. Supports Sway, Hyprland and MangoWM.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "3.6.0",
       "license": "GPL-3.0-or-later",
       "tags": [
         "Bar",
         "Panel",
         "Utility",
-        "Hyprland"
+        "Hyprland",
+        "Sway"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-27T17:23:55-04:00"
     },
     {
       "id": "screen-toolkit",
       "name": "Screen Toolkit",
-      "version": "1.0.7",
+      "version": "1.1.4",
       "official": false,
       "author": "ycf-anon",
       "description": "A set of screen tools: color picker, annotate, record, pin, OCR, QR scanner, palette, measure, and webcam mirror.",
@@ -1166,12 +1460,12 @@
         "Utility",
         "System"
       ],
-      "lastUpdated": "2026-04-04T16:57:23+07:00"
+      "lastUpdated": "2026-04-23T15:15:46+02:00"
     },
     {
       "id": "screenshot",
       "name": "Screenshot",
-      "version": "1.1.0",
+      "version": "1.2.1",
       "official": false,
       "author": "Cleboost",
       "description": "Quick screenshot button in bar for Hyprland, Sway, and Niri",
@@ -1182,12 +1476,12 @@
         "Bar",
         "Utility"
       ],
-      "lastUpdated": "2026-04-08T21:41:36+02:00"
+      "lastUpdated": "2026-04-19T00:00:51+02:00"
     },
     {
       "id": "shell-profiles",
       "name": "Profiles",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "Archlexx",
       "description": "Save, load, and manage Noctalia configuration profiles.",
@@ -1200,12 +1494,12 @@
         "Utility",
         "Panel"
       ],
-      "lastUpdated": "2026-04-05T16:01:52+02:00"
+      "lastUpdated": "2026-04-26T00:13:30+07:00"
     },
     {
       "id": "show-keys",
       "name": "Show Keys",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "onez3r0",
       "description": "Floating OSD that displays keyboard input in real-time via evtest.",
@@ -1216,7 +1510,7 @@
         "Indicator",
         "System"
       ],
-      "lastUpdated": "2026-03-15T15:10:45+08:00"
+      "lastUpdated": "2026-04-09T18:01:49+02:00"
     },
     {
       "id": "simple-notes",
@@ -1238,7 +1532,7 @@
     {
       "id": "slowbongo",
       "name": "Slow Bongo",
-      "version": "0.7.9",
+      "version": "0.8.0",
       "official": false,
       "author": "tui",
       "description": "A bongo cat that sits in your bar and slaps when you type.",
@@ -1250,12 +1544,12 @@
         "Audio",
         "Fun"
       ],
-      "lastUpdated": "2026-04-01T17:37:15-04:00"
+      "lastUpdated": "2026-04-15T09:46:06+02:00"
     },
     {
       "id": "special-workspaces",
       "name": "Special Workspaces (Hyprland)",
-      "version": "1.0.2",
+      "version": "1.1.1",
       "official": false,
       "author": "Qholin",
       "description": "Configurable Hyprland special workspaces indicator for the bar.",
@@ -1267,7 +1561,7 @@
         "Productivity",
         "Hyprland"
       ],
-      "lastUpdated": "2026-04-02T00:55:20+01:00"
+      "lastUpdated": "2026-04-18T22:57:42+02:00"
     },
     {
       "id": "squeekboard-toggle",
@@ -1275,7 +1569,7 @@
       "version": "1.1.0",
       "official": false,
       "author": "blackteaextract",
-      "description": "Toggle the Squeekboard on-screen keyboard with live availability detection, hover icons, and configurable settings.",
+      "description": "Toggle the Squeekboard on-screen keyboard with live availability detection, hover icons, and configurable settings. Note: This plugin is deprecated and got consolidated in osk-toggle.",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
       "minNoctaliaVersion": "4.4.3",
       "license": "MIT",
@@ -1284,12 +1578,12 @@
         "Bar",
         "Utility"
       ],
-      "lastUpdated": "2026-04-01T14:56:10+02:00"
+      "lastUpdated": "2026-04-13T18:41:37+02:00"
     },
     {
       "id": "ssh-sessions",
       "name": "SSH Sessions",
-      "version": "1.1.0",
+      "version": "1.1.2",
       "official": false,
       "author": "adriamartin91",
       "description": "Manage SSH connections from ~/.ssh/config with active session detection and launcher integration.",
@@ -1303,7 +1597,7 @@
         "Utility",
         "Development"
       ],
-      "lastUpdated": "2026-04-09T00:42:42+07:00"
+      "lastUpdated": "2026-04-13T20:17:59+02:00"
     },
     {
       "id": "steam-price-watcher",
@@ -1321,7 +1615,7 @@
     {
       "id": "sticky-notes",
       "name": "Sticky Notes",
-      "version": "0.0.4",
+      "version": "0.0.5",
       "official": false,
       "author": "sapjax",
       "description": "A local quick notes plugin with Markdown support.",
@@ -1333,7 +1627,7 @@
         "Panel",
         "Productivity"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-18T19:09:12+02:00"
     },
     {
       "id": "syncthing-status",
@@ -1356,7 +1650,7 @@
     {
       "id": "sys-info-widget",
       "name": "System Info",
-      "version": "1.0.4",
+      "version": "1.0.8",
       "official": false,
       "author": "Simon",
       "description": "Shows Distribution, Kernel, Uptime and IP addresses.",
@@ -1367,12 +1661,12 @@
         "Desktop",
         "System"
       ],
-      "lastUpdated": "2026-04-06T20:25:03+02:00"
+      "lastUpdated": "2026-04-25T15:46:50+03:00"
     },
     {
       "id": "tailscale",
       "name": "Tailscale",
-      "version": "1.3.0",
+      "version": "1.4.1",
       "official": false,
       "author": "nineluj",
       "description": "Show Tailscale status in the menu bar and send/receive files via Taildrop.",
@@ -1384,7 +1678,24 @@
         "Network",
         "Panel"
       ],
-      "lastUpdated": "2026-03-28T17:10:20-04:00"
+      "lastUpdated": "2026-04-26T10:51:56-07:00"
+    },
+    {
+      "id": "tamagotchi",
+      "name": "Tamagochi",
+      "version": "1.1.2",
+      "official": false,
+      "author": "Joaquin Righetti, Lucia Bollati",
+      "description": "A lightweight taskbar Tamagotchi that lives and evolves while you use your computer.",
+      "repository": "https://github.com/noctalia-dev/noctalia-plugins",
+      "minNoctaliaVersion": "4.6.6",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Fun",
+        "Gaming"
+      ],
+      "lastUpdated": "2026-04-25T15:46:23+03:00"
     },
     {
       "id": "timer",
@@ -1405,7 +1716,7 @@
     {
       "id": "todo",
       "name": "Todo List",
-      "version": "1.9.9",
+      "version": "1.10.0",
       "official": false,
       "author": "lonerOrz <lonerOrz@qq.com>",
       "description": "A simple todo list manager plugin for Noctalia Shell.",
@@ -1418,12 +1729,12 @@
         "Panel",
         "Productivity"
       ],
-      "lastUpdated": "2026-03-30T18:13:11+02:00"
+      "lastUpdated": "2026-05-01T16:22:21+08:00"
     },
     {
       "id": "translator",
       "name": "Translator",
-      "version": "1.2.5",
+      "version": "1.2.6",
       "official": false,
       "author": "Cleboost",
       "description": "Quick translate in launcher",
@@ -1433,7 +1744,7 @@
       "tags": [
         "Launcher"
       ],
-      "lastUpdated": "2026-03-26T03:22:07+01:00"
+      "lastUpdated": "2026-04-11T00:50:22+02:00"
     },
     {
       "id": "unicode-picker",
@@ -1470,7 +1781,7 @@
     {
       "id": "usb-drive-manager",
       "name": "USB Drive Manager",
-      "version": "1.0.0",
+      "version": "1.4.0",
       "official": false,
       "author": "hennifant",
       "description": "Manage USB drives: detect, mount, unmount, safely eject, and browse files",
@@ -1482,7 +1793,7 @@
         "Panel",
         "Utility"
       ],
-      "lastUpdated": "2026-03-31T11:11:13+02:00"
+      "lastUpdated": "2026-05-01T14:05:14+02:00"
     },
     {
       "id": "valent-connect",
@@ -1505,7 +1816,7 @@
     {
       "id": "video-wallpaper",
       "name": "Video Wallpaper",
-      "version": "2.0.6",
+      "version": "2.0.8",
       "official": false,
       "author": "spiros132",
       "description": "A plugin that uses a backend renderer to play videos as your wallpaper.",
@@ -1518,12 +1829,12 @@
         "Fun",
         "System"
       ],
-      "lastUpdated": "2026-04-08T22:06:09+02:00"
+      "lastUpdated": "2026-05-06T08:25:03-04:00"
     },
     {
       "id": "vscode-provider",
       "name": "VS Code Provider",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "Krendil",
       "description": "Open VS Code Folders and Workspaces",
@@ -1534,12 +1845,12 @@
         "Launcher",
         "Development"
       ],
-      "lastUpdated": "2026-03-15T17:16:29+01:00"
+      "lastUpdated": "2026-04-08T22:23:54+02:00"
     },
     {
       "id": "wallcards",
       "name": "Wallcards",
-      "version": "0.0.3",
+      "version": "0.1.1",
       "official": false,
       "author": "tonigineer",
       "description": "A `lively` wallpaper selector.",
@@ -1550,12 +1861,12 @@
         "Desktop",
         "Theming"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-05-01T23:37:21+02:00"
     },
     {
       "id": "weather-indicator",
       "name": "Weather Indicator",
-      "version": "1.1.4",
+      "version": "1.1.7",
       "official": false,
       "author": "Sovereign",
       "description": "Shows the current weather condition and temperature.",
@@ -1565,12 +1876,12 @@
       "tags": [
         "Bar"
       ],
-      "lastUpdated": "2026-03-31T09:11:06+02:00"
+      "lastUpdated": "2026-04-26T10:17:55-04:00"
     },
     {
       "id": "web-search",
       "name": "Web Search",
-      "version": "1.0.2",
+      "version": "1.1.2",
       "official": false,
       "author": "Rigelyon",
       "description": "Search the Internet from the Launcher.",
@@ -1581,7 +1892,7 @@
         "Launcher",
         "Utility"
       ],
-      "lastUpdated": "2026-03-29T01:13:47+01:00"
+      "lastUpdated": "2026-04-25T15:30:40+03:00"
     },
     {
       "id": "weekly-calendar",
@@ -1603,7 +1914,7 @@
     {
       "id": "workspace-overview",
       "name": "Workspace Overview for Hyprland",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "official": false,
       "author": "doughbran",
       "description": "Workspace overview with live window previews and wallpaper backgrounds for Hyprland.",
@@ -1616,7 +1927,7 @@
         "Panel",
         "Utility"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-04-29T18:32:38+02:00"
     },
     {
       "id": "world-clock",
@@ -1634,7 +1945,7 @@
     {
       "id": "zed-provider",
       "name": "Zed Provider",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "official": false,
       "author": "justKevv",
       "description": "A zed provider for opening project easier using zed code editor",
@@ -1645,7 +1956,7 @@
         "Launcher",
         "Developer"
       ],
-      "lastUpdated": "2026-04-04T10:50:38+08:00"
+      "lastUpdated": "2026-04-08T22:19:02+02:00"
     }
   ]
 }

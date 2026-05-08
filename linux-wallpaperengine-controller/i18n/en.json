@@ -8,9 +8,24 @@
     }
   },
   "menu": {
-    "reload": "Reload wallpaper engine",
+    "refreshWallpapers": "Refresh wallpaper list",
+    "start": "Start wallpaper engine",
     "stop": "Stop wallpaper engine",
     "settings": "Plugin settings"
+  },
+  "toast": {
+    "reloaded": "Wallpaper engine reloaded",
+    "stopped": "Wallpaper engine stopped",
+    "reloadSkippedNoWallpaper": "No wallpaper is configured, so there was nothing to reload",
+    "refreshingWallpapers": "Refreshing wallpaper list...",
+    "refreshedWallpapers": "Wallpaper list refreshed: {count} wallpapers",
+    "refreshSkippedNoFolder": "Wallpaper source directory is empty, so the wallpaper list could not be refreshed",
+    "wallpaperColorsGenerating": "Generating wallpaper screenshot for color extraction...",
+    "wallpaperColorsApplied": "Wallpaper colors applied to Noctalia",
+    "wallpaperColorsCached": "Wallpaper colors cached for this display",
+    "wallpaperColorsFailed": "Failed to extract colors from the selected wallpaper",
+    "wallpaperColorsNoSelection": "Select a wallpaper first before applying wallpaper colors",
+    "wallpaperColorsEngineUnavailable": "linux-wallpaperengine must be available to generate wallpaper colors"
   },
   "main": {
     "status": {
@@ -29,44 +44,51 @@
     }
   },
   "panel": {
-    "title": "Linux-WallpaperEngine Settings",
-    "sectionInfo": "Information",
-    "sectionAudio": "Audio & Display",
+    "title": "Wallpaper-Engine Wallpaper Selector",
+    "statusChecking": "Checking",
+    "statusUnavailable": "Unavailable",
+    "statusRunning": "Running",
+    "statusReady": "Configured",
+    "statusStopped": "Stopped",
+    "sectionAudio": "Display & Audio",
     "sectionFeatures": "Features",
     "installHint": "Install example: yay -S linux-wallpaperengine-git",
     "errorBannerTitle": "Runtime error detected",
     "errorShowDetails": "View details",
     "errorHideDetails": "Hide details",
     "errorDismiss": "Dismiss",
-    "screen": {
-      "label": "Target screen",
-      "description": "Select the monitor to apply the current wallpaper"
-    },
-    "reload": "Reload",
+    "refreshWallpapers": "Refresh wallpapers",
+    "start": "Start",
     "stop": "Stop",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "compatibilityQuickCheck": "Compatibility quick check",
+    "compatibilityQuickCheckRunning": "Checking wallpaper compatibility...",
+    "compatibilityQuickCheckConfirm": "Scan all wallpapers for extra property compatibility? This may take some time.",
+    "compatibilityQuickCheckFinished": "Scanned {total} wallpapers, {failed} may fail",
     "folderInvalid": "Wallpaper source directory is invalid or inaccessible.",
     "scanning": "Scanning wallpapers...",
-    "searchPlaceholder": "Search wallpapers...",
+    "searchPlaceholder": "Search wallpapers by name or ID",
     "searchClear": "Clear search",
-    "filterButton": "Filter",
     "filterButtonSummary": "Filter · {type}",
-    "sortButton": "Sort",
     "sortButtonSummary": "Sort · {direction} {sort}",
     "applyAllDisplays": "Apply to all displays",
-    "perDisplayMode": "Multi-display",
-    "switchToAllDisplays": "Apply on all displays",
-    "switchToPerDisplay": "Apply separately per display",
     "closePanel": "Close panel",
-    "confirmApply": "Confirm apply",
-    "cancelSelection": "Cancel",
-    "pendingHint": "Selected but not applied yet. You can adjust settings before confirming.",
+    "confirmApply": "Apply wallpaper",
+    "syncWallpaperColors": "Sync wallpaper colors",
     "wallpaperScaling": "Scaling",
+    "wallpaperClamp": "Clamp mode",
     "wallpaperVolume": "Volume",
     "wallpaperMuted": "Mute",
-    "wallpaperAudioReactive": "Audio reactive",
+    "wallpaperAudioReactive": "Audio reactive effects",
     "wallpaperDisableMouse": "Disable mouse interaction",
     "wallpaperDisableParallax": "Disable parallax effect",
-    "resetWallpaperSettings": "Reset to global defaults",
+    "sectionProperties": "Extra properties",
+    "loadingProperties": "Loading wallpaper properties...",
+    "propertiesLoadFailed": "Failed to load wallpaper properties. This wallpaper format may not be supported yet, or this wallpaper may not run correctly",
+    "propertiesFailedBadge": "May fail",
+    "noEditableProperties": "This wallpaper has no editable extra properties yet",
+    "propertiesNotice": "Only directly editable properties supported by this plugin are shown here",
     "infoType": "Type",
     "infoId": "ID",
     "infoResolution": "Resolution",
@@ -75,8 +97,14 @@
     "scalingFit": "Fit",
     "scalingStretch": "Stretch",
     "scalingDefault": "Default",
+    "clampClamp": "Clamp",
+    "clampBorder": "Border",
+    "clampRepeat": "Repeat",
+    "propertyLabelThemeColor": "Theme Color",
     "targetAllDisplays": "Target: All displays",
     "targetSingleDisplay": "Target: {screen}",
+    "applySingleDisplay": "Apply to {screen}",
+    "applyTarget": "Choose apply target",
     "filterAll": "All",
     "filterTypeAll": "All",
     "filterTypeScene": "Scene",
@@ -84,6 +112,8 @@
     "filterTypeWeb": "Web",
     "filterTypeApplication": "Application",
     "filterResAll": "Resolution: All",
+    "filterRes4k": "Resolution: 4K",
+    "filterRes8k": "Resolution: 8K",
     "filterResUnknown": "Resolution: Unknown",
     "filterStatic": "Static",
     "filterDynamic": "Dynamic",
@@ -100,16 +130,45 @@
     "typeApplication": "Application",
     "resolutionUnknown": "Unknown",
     "dynamicBadge": "Dynamic",
+    "staticBadge": "Static",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageSummary": "Page {current} / {total}",
+    "pageRange": "{start}-{end} / {total}",
     "count": "Wallpaper count: {count}",
-    "apply": "Apply",
-    "empty": "No folders found in source directory"
+    "emptyAll": "No wallpapers found in the source directory",
+    "emptyFiltered": "No wallpapers match the current filters"
   },
   "settings": {
     "category": {
+      "interfaceTitle": "Interface",
       "performanceTitle": "Performance",
-      "compatibilityTitle": "Compatibility",
+      "compatibilityTitle": "Resources",
       "audioTitle": "Audio",
       "displayTitle": "Display"
+    },
+    "defaults": {
+      "title": "Default application options",
+      "description": "These options are used as defaults when you apply a wallpaper without overriding its per-wallpaper settings."
+    },
+    "iconColor": {
+      "label": "Icon color",
+      "description": "Color used for the bar widget icon"
+    },
+    "enableExtraPropertiesEditor": {
+      "label": "Enable extra property editor",
+      "description": "Show wallpaper-specific extra properties in the panel sidebar when available"
+    },
+    "cache": {
+      "currentSize": "Current color image cache size: {size}",
+      "refresh": "Refresh color cache size",
+      "clear": "Clear color image cache",
+      "sizeUnknown": "Unknown"
+    },
+    "units": {
+      "fps": " FPS",
+      "percent": " %",
+      "minutes": " min"
     },
     "wallpapersFolder": {
       "label": "Wallpaper source directory",
@@ -122,12 +181,20 @@
       "description": "Optional: assets path used by linux-wallpaperengine",
       "placeholder": "~/.local/share/wallpaperengine/assets"
     },
+    "wallpaperScanCacheMinutes": {
+      "label": "Wallpaper scan cache duration",
+      "description": "Reuse the cached wallpaper list for this many minutes before scanning again when opening the panel"
+    },
     "defaultScaling": {
-      "label": "Default scaling",
+      "label": "Scaling mode",
       "description": "Default scaling mode when no custom value is set"
     },
+    "defaultClamp": {
+      "label": "Clamp mode",
+      "description": "Default edge handling mode used when rendering wallpapers"
+    },
     "defaultFps": {
-      "label": "Default FPS",
+      "label": "FPS limit",
       "description": "Default frame rate limit for wallpapers",
       "placeholder": "30"
     },
@@ -140,20 +207,28 @@
       "description": "(Wayland only) Pause only when a fullscreen window is active"
     },
     "defaultVolume": {
-      "label": "Default wallpaper volume"
+      "label": "Volume",
+      "description": "Volume used when wallpapers start without mute enabled"
     },
     "defaultMuted": {
-      "label": "Mute wallpaper by default",
+      "label": "Start muted",
       "description": "Start wallpapers in mute mode by default"
     },
     "defaultAudioReactiveEffects": {
-      "label": "Audio reactive effects"
+      "label": "Audio reactive effects",
+      "description": "Keep wallpaper audio processing enabled by default when the wallpaper supports it"
+    },
+    "defaultNoAutomute": {
+      "label": "Do not mute when other apps play audio",
+      "description": "When enabled, wallpaper audio keeps playing even while other applications are outputting sound"
     },
     "defaultDisableMouse": {
-      "label": "Disable mouse interaction"
+      "label": "Disable mouse interaction",
+      "description": "Start wallpapers with mouse input disabled by default"
     },
     "defaultDisableParallax": {
-      "label": "Disable parallax effect"
+      "label": "Disable parallax effect",
+      "description": "Start wallpapers with parallax effects disabled by default"
     },
     "autoApplyOnStartup": {
       "label": "Auto apply on startup",

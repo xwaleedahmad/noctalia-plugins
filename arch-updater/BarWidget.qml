@@ -42,18 +42,18 @@ Item {
     readonly property color iconColor: enableColorization ? Color.resolveColorKey(iconColorKey) : Color.mPrimary
 
     // Content dimensions (visual capsule size)
-    readonly property real contentWidth: content.implicitWidth + Style.marginM * 2
-    readonly property real contentHeight: capsuleHeight
+    readonly property real contentWidth: isBarVertical ? capsuleHeight : layout.implicitWidth + Style.marginM * 2
+    readonly property real contentHeight: isBarVertical ? layout.implicitHeight + Style.marginM * 2 : capsuleHeight
 
     // Widget dimensions (extends to full bar height for better click area)
     implicitWidth: contentWidth
     implicitHeight: contentHeight
 
     // Hide on empty
-    visible: (root.pluginApi.mainInstance.updateCount + root.pluginApi.mainInstance.flatpakCount) | !(pluginApi.pluginSettings.hideOnEmpty ?? pluginApi.manifest.metadata.defaultSettings.hideOnEmpty)
+    visible: root.pluginApi.mainInstance.updates.length | !(pluginApi.pluginSettings.hideOnEmpty ?? pluginApi.manifest.metadata.defaultSettings.hideOnEmpty)
 
     // Tooltip Text
-    property string tooltipText: root.pluginApi.mainInstance.nameStr + (root.pluginApi.mainInstance.flatpakCount ? "\n\n" : "") + root.pluginApi.mainInstance.flatpakNameStr
+    property string tooltipText: root.pluginApi.mainInstance.systemStr + (root.pluginApi.mainInstance.aurStr ? "\n" + root.pluginApi.mainInstance.aurStr : "") + (root.pluginApi.mainInstance.flatpakStr ? "\n" + root.pluginApi.mainInstance.flatpakStr : "")
     property string tooltipTextTrimmed: root.tooltipText.split("\n").slice(0, 30).join("\n")
 
     // Visual capsule - centered within the full click area
@@ -67,54 +67,113 @@ Item {
         radius: Style.radiusL
         border.color: Style.capsuleBorderColor
         border.width: Style.capsuleBorderWidth
-
-        RowLayout { // Widget
-            id: content
+        Item {
+            id: layout
             anchors.centerIn: parent
-            spacing: Style.marginS
-            NIcon { // Theme icon
-                visible: !root.pluginApi.mainInstance.refreshing && root.customIconPath === "" && !root.useDistroLogo
-                color: mouseArea.containsMouse ? Color.mOnHover : (root.pluginApi.mainInstance.noctaliaUpdate ? Color.mHover : root.iconColor)
-                icon: (root.pluginApi.mainInstance.noctaliaUpdate | mouseArea.containsMouse) ? root.iconName + "-filled" : root.iconName
-            }
-            IconImage { // Custom file or distro logo
-                visible: !root.pluginApi.mainInstance.refreshing && (root.useDistroLogo || root.customIconPath !== "")
-                Layout.preferredWidth: root.capsuleHeight * 0.6
-                Layout.preferredHeight: root.capsuleHeight * 0.6
-                source: {
-                    if (root.useDistroLogo) return HostService.osLogo
-                    if (root.customIconPath !== "") return root.customIconPath.startsWith("file://") ? root.customIconPath : "file://" + root.customIconPath
-                    return ""
-                }
-                smooth: true
-                asynchronous: true
-                layer.enabled: root.enableColorization && (root.useDistroLogo || root.customIconPath !== "")
-                layer.effect: ShaderEffect {
-                    property color targetColor: mouseArea.containsMouse ? Color.mOnHover : root.iconColor
-                    property real colorizeMode: 2.0
-                    fragmentShader: Qt.resolvedUrl(Quickshell.shellDir + "/Shaders/qsb/appicon_colorize.frag.qsb")
-                }
-            }
-            NIcon { // Loading spinner
-                icon: "loader"
-                color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurfaceVariant
-                visible: root.pluginApi.mainInstance.refreshing
+            implicitWidth: contentHorizontal.visible ? contentHorizontal.implicitWidth : contentVertical.implicitWidth
+            implicitHeight: contentHorizontal.visible ? contentHorizontal.implicitHeight : contentVertical.implicitHeight
 
-                RotationAnimator on rotation {
-                    running: root.pluginApi.mainInstance.refreshing
-                    from: 0
-                    to: 360
-                    duration: 1000
-                    loops: Animation.Infinite
+            RowLayout { // Horizontal Widget
+                id: contentHorizontal
+                visible: !root.isBarVertical
+                anchors.centerIn: parent
+                spacing: Style.marginS
+                NIcon { // Theme icon
+                    visible: !root.pluginApi.mainInstance.refreshing && root.customIconPath === "" && !root.useDistroLogo
+                    color: mouseArea.containsMouse ? Color.mOnHover : (root.pluginApi.mainInstance.noctaliaUpdate ? Color.mHover : root.iconColor)
+                    icon: (root.pluginApi.mainInstance.noctaliaUpdate | mouseArea.containsMouse) ? root.iconName + "-filled" : root.iconName
+                }
+                IconImage { // Custom file or distro logo
+                    visible: !root.pluginApi.mainInstance.refreshing && (root.useDistroLogo || root.customIconPath !== "")
+                    Layout.preferredWidth: root.capsuleHeight * 0.6
+                    Layout.preferredHeight: root.capsuleHeight * 0.6
+                    source: {
+                        if (root.useDistroLogo) return HostService.osLogo
+                        if (root.customIconPath !== "") return root.customIconPath.startsWith("file://") ? root.customIconPath : "file://" + root.customIconPath
+                        return ""
+                    }
+                    smooth: true
+                    asynchronous: true
+                    layer.enabled: root.enableColorization && (root.useDistroLogo || root.customIconPath !== "")
+                    layer.effect: ShaderEffect {
+                        property color targetColor: mouseArea.containsMouse ? Color.mOnHover : root.iconColor
+                        property real colorizeMode: 2.0
+                        fragmentShader: Qt.resolvedUrl(Quickshell.shellDir + "/Shaders/qsb/appicon_colorize.frag.qsb")
+                    }
+                }
+                NIcon { // Loading spinner
+                    icon: "loader"
+                    color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurfaceVariant
+                    visible: root.pluginApi.mainInstance.refreshing
+
+                    RotationAnimator on rotation {
+                        running: root.pluginApi.mainInstance.refreshing
+                        from: 0
+                        to: 360
+                        duration: 1000
+                        loops: Animation.Infinite
+                    }
+                }
+                NText { // Count
+                    visible: !root.pluginApi.mainInstance.refreshing
+                    text: (root.pluginApi.mainInstance.updates.length).toString()
+                    color: mouseArea.containsMouse ? Color.mOnHover : (root.pluginApi.mainInstance.noctaliaUpdate ? Color.mSecondary : Color.mOnSurface)
+                    pointSize: root.barFontSize
+                    applyUiScale: false
+                    font.weight: root.boldText ? Font.Bold : Font.Normal
                 }
             }
-            NText { // Count
-                visible: !root.pluginApi.mainInstance.refreshing
-                text: (root.pluginApi.mainInstance.updateCount + root.pluginApi.mainInstance.flatpakCount).toString()
-                color: mouseArea.containsMouse ? Color.mOnHover : (root.pluginApi.mainInstance.noctaliaUpdate ? Color.mSecondary : Color.mOnSurface)
-                pointSize: root.barFontSize
-                applyUiScale: false
-                font.weight: root.boldText ? Font.Bold : Font.Normal
+
+
+            ColumnLayout { // Vertical Widget
+                id: contentVertical
+                visible: root.isBarVertical
+                anchors.centerIn: parent
+                spacing: Style.marginS
+                NText { // Count
+                    visible: !root.pluginApi.mainInstance.refreshing
+                    text: root.pluginApi.mainInstance.updates.length.toString()
+                    color: mouseArea.containsMouse ? Color.mOnHover : (root.pluginApi.mainInstance.noctaliaUpdate ? Color.mSecondary : Color.mOnSurface)
+                    pointSize: root.barFontSize
+                    applyUiScale: false
+                    font.weight: root.boldText ? Font.Bold : Font.Normal
+                }
+                NIcon { // Theme icon
+                    visible: !root.pluginApi.mainInstance.refreshing && root.customIconPath === "" && !root.useDistroLogo
+                    color: mouseArea.containsMouse ? Color.mOnHover : (root.pluginApi.mainInstance.noctaliaUpdate ? Color.mHover : root.iconColor)
+                    icon: (root.pluginApi.mainInstance.noctaliaUpdate | mouseArea.containsMouse) ? root.iconName + "-filled" : root.iconName
+                }
+                IconImage { // Custom file or distro logo
+                    visible: !root.pluginApi.mainInstance.refreshing && (root.useDistroLogo || root.customIconPath !== "")
+                    Layout.preferredWidth: root.capsuleHeight * 0.6
+                    Layout.preferredHeight: root.capsuleHeight * 0.6
+                    source: {
+                        if (root.useDistroLogo) return HostService.osLogo
+                        if (root.customIconPath !== "") return root.customIconPath.startsWith("file://") ? root.customIconPath : "file://" + root.customIconPath
+                        return ""
+                    }
+                    smooth: true
+                    asynchronous: true
+                    layer.enabled: root.enableColorization && (root.useDistroLogo || root.customIconPath !== "")
+                    layer.effect: ShaderEffect {
+                        property color targetColor: mouseArea.containsMouse ? Color.mOnHover : root.iconColor
+                        property real colorizeMode: 2.0
+                        fragmentShader: Qt.resolvedUrl(Quickshell.shellDir + "/Shaders/qsb/appicon_colorize.frag.qsb")
+                    }
+                }
+                NIcon { // Loading spinner
+                    icon: "loader"
+                    color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurfaceVariant
+                    visible: root.pluginApi.mainInstance.refreshing
+
+                    RotationAnimator on rotation {
+                        running: root.pluginApi.mainInstance.refreshing
+                        from: 0
+                        to: 360
+                        duration: 1000
+                        loops: Animation.Infinite
+                    }
+                }
             }
         }
     }
@@ -146,15 +205,15 @@ Item {
 
             // Handle actions
             if (action === "refresh") {
-                Logger.d("Update Widget", "Refreshing from context menu...")
+                Logger.d("Arch Updater", "Refreshing from context menu...")
                 root.pluginApi.mainInstance.refresh() // Refresh available updates
             }
             else if (action === "update") {
-                Logger.d("Update Widget", "Updating from context menu...")
+                Logger.d("Arch Updater", "Updating from context menu...")
                 root.pluginApi.mainInstance.update() // Update
             }
             else if (action === "settings") {
-                Logger.d("Update Widget", "Opening settings from context menu...")
+                Logger.d("Arch Updater", "Opening settings from context menu...")
                 BarService.openPluginSettings(screen, pluginApi.manifest) // Open plugin settings
             }
         }
@@ -169,21 +228,23 @@ Item {
 
         onClicked: (mouse) => {
             if (mouse.button === Qt.LeftButton) {
-                Logger.d("Update Widget", "Opening panel from bar...")
+                Logger.d("Arch Updater", "Opening panel from bar...")
                 pluginApi.openPanel(root.screen, root) // Open panel
             }
             else if (mouse.button === Qt.RightButton) {
-                Logger.d("Update Widget", "Opening context menu from bar...")
+                Logger.d("Arch Updater", "Opening context menu from bar...")
                 PanelService.showContextMenu(contextMenu, root, screen) // Open context menu
             }
             else if (mouse.button === Qt.MiddleButton) {
-                Logger.d("Update Widget", "Refreshing from bar...")
+                Logger.d("Arch Updater", "Refreshing from bar...")
                 root.pluginApi.mainInstance.refresh() // Refresh available updates
             }
         }
         onEntered: {
             // Tooltip shows available updates for both system and flatpak
-            TooltipService.show(root, (root.pluginApi.mainInstance.noctaliaUpdate ? pluginApi.tr("tooltip.noctaliaUpdates") : pluginApi.tr("tooltip.availableUpdates")) + "\n---------------\n" + (root.tooltipTextTrimmed !== root.tooltipText ? root.tooltipTextTrimmed + "\n..." : root.tooltipTextTrimmed), BarService.getTooltipDirection())
+            if (pluginApi.pluginSettings.tooltip ?? pluginApi.manifest.metadata.defaultSettings.tooltip) {
+                TooltipService.show(root, (root.pluginApi.mainInstance.noctaliaUpdate ? pluginApi.tr("tooltip.noctaliaUpdates") : pluginApi.tr("tooltip.availableUpdates")) + "\n---------------\n" + (root.tooltipTextTrimmed !== root.tooltipText ? root.tooltipTextTrimmed + "\n..." : root.tooltipTextTrimmed), BarService.getTooltipDirection(root.screen?.name))
+            }
         }
 
         onExited: {
