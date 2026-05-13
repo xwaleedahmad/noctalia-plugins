@@ -24,6 +24,7 @@ Item {
     readonly property var main: pluginApi?.mainInstance
     readonly property string platform: cfg.platform ?? defaults.platform
     readonly property string bin: platform === 'gitlab' ? 'glab' : 'gh'
+    readonly property string platformIcon: platform === 'gitlab' ? "brand-gitlab" : "brand-github"
 
     readonly property bool ready: main && main.isBinInstalled && main.isAuthenticated
     readonly property bool showNoScope: ready && platform === 'gitlab' && !main.hasScope
@@ -116,7 +117,7 @@ Item {
 
                         NIcon {
                             color: Color.mPrimary
-                            icon: root.platform === 'gitlab' ? "brand-gitlab" : "brand-github"
+                            icon: root.platformIcon
                             pointSize: Style.fontSizeXXL
                         }
                         ColumnLayout {
@@ -206,7 +207,7 @@ Item {
                                 elide: Text.ElideRight
                                 font.weight: Font.Thin
                                 pointSize: Style.fontSizeXS
-                                text: root.main?.repo || root.main?.bio || pluginApi?.tr("panel.no-bio") || ""
+                                text: root.main?.repo || root.main?.bio || pluginApi?.tr("panel.no-bio")
                             }
                         }
                     }
@@ -253,13 +254,16 @@ Item {
                 readonly property bool binMissing: !(root.main?.isBinInstalled ?? false)
                 readonly property bool authMissing: !binMissing && !(root.main?.isAuthenticated ?? false)
 
-                readonly property string statusIcon: binMissing ? (root.platform === 'gitlab' ? "brand-gitlab" : "brand-github") : authMissing ? "user-exclamation" : "alert-triangle"
-                readonly property string statusText: binMissing ? (pluginApi?.tr("panel.bin-not-installed", {
-                        bin: root.bin
-                    }) ?? "") : authMissing ? (pluginApi?.tr("panel.auth-error", {
-                        bin: root.bin
-                    }) ?? "") : (pluginApi?.tr("panel.no-scope") ?? "")
-
+                readonly property string statusIcon: {
+                    if (binMissing) return root.platformIcon;
+                    if (authMissing) return "user-exclamation";
+                    return "alert-triangle";
+                }
+                readonly property string statusText: {
+                    if (binMissing) return pluginApi?.tr("panel.bin-not-installed", { bin: root.bin });
+                    if (authMissing) return pluginApi?.tr("panel.auth-error", { bin: root.bin });
+                    return pluginApi?.tr("panel.no-scope");
+                }
                 Layout.fillWidth: true
                 Layout.preferredHeight: statusError.implicitHeight + Style.margin2M
                 visible: !root.showLists && !(root.main?.loading ?? false)
