@@ -85,10 +85,10 @@ Item {
         } else if (root.selectedField === "otp-type") {
           root.resetDetailMode()
           launcher.close()
-          var wtypeDelay = pluginApi?.pluginSettings?.wtypeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.wtypeDelay || 12
-          var typeDelay = pluginApi?.pluginSettings?.typeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.typeDelay || 0.2
+          var wtypeDelay = pluginApi?.pluginSettings?.wtypeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.wtypeDelay || 20
+          var typeDelay = pluginApi?.pluginSettings?.typeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.typeDelay || 0.5
           var escValue = otp.replace(/'/g, "'\\''")
-          copyProc.exec(["sh", "-c", "sleep " + typeDelay + " && printf '%s' '" + escValue + "' | wtype -d " + wtypeDelay])
+          copyProc.exec(["sh", "-c", "sleep " + typeDelay + " && printf '%s' '" + escValue + "' | wtype -d " + wtypeDelay + "-"])
         }
       }
     }
@@ -584,10 +584,10 @@ Item {
     root.resetDetailMode()
     launcher.close()
     root.selectedField = field ? "type-field" : "type-password"
-    var wtypeDelay = pluginApi?.pluginSettings?.wtypeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.wtypeDelay || 12
-    var typeDelay = pluginApi?.pluginSettings?.typeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.typeDelay || 0.2
+    var wtypeDelay = pluginApi?.pluginSettings?.wtypeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.wtypeDelay || 20
+    var typeDelay = pluginApi?.pluginSettings?.typeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.typeDelay || 0.5
     var escapedValue = value.replace(/'/g, "'\\''")
-    copyProc.exec(["sh", "-c", "sleep " + typeDelay + " && printf '%s' '" + escapedValue + "' | wtype -d " + wtypeDelay])
+    copyProc.exec(["sh", "-c", "sleep " + typeDelay + " && printf '%s' '" + escapedValue + "' | wtype -d " + wtypeDelay + "-"])
   }
 
   function copyOtp(path) {

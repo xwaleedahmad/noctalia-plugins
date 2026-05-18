@@ -20,8 +20,8 @@
     "commandPrefix": "pass",
     "defaultSettings": {
       "storePath": "",
-      "typeDelay": 0.2,
-      "wtypeDelay": 12
+      "typeDelay": 0.5,
+      "wtypeDelay": 20
     }
   }
 }
