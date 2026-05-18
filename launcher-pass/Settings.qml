@@ -11,8 +11,8 @@ ColumnLayout {
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
   property string editStorePath: cfg.storePath ?? defaults.storePath ?? ""
-  property real editTypeDelay: cfg.typeDelay ?? defaults.typeDelay ?? 0.2
-  property int editWtypeDelay: cfg.wtypeDelay ?? defaults.wtypeDelay ?? 12
+  property string editTypeDelay: String(cfg.typeDelay ?? defaults.typeDelay ?? 0.2)
+  property string editWtypeDelay: String(cfg.wtypeDelay ?? defaults.wtypeDelay ?? 12)
 
   spacing: Style.marginL
 
@@ -28,31 +28,28 @@ ColumnLayout {
     Layout.fillWidth: true
     label: pluginApi?.tr("settings.typeDelay.label") || "Launcher Close Delay"
     description: pluginApi?.tr("settings.typeDelay.desc") || "Delay before typing starts (seconds, default: 0.2)"
-    text: root.editTypeDelay.toString()
-    validator: RegularExpressionValidator { regularExpression: /^[0-9]*\.?[0-9]+$/ }
-    onTextChanged: {
-      var val = parseFloat(text)
-      if (!isNaN(val) && val >= 0) root.editTypeDelay = val
-    }
+    text: root.editTypeDelay
+    onTextChanged: root.editTypeDelay = text
   }
 
   NTextInput {
     Layout.fillWidth: true
     label: pluginApi?.tr("settings.wtypeDelay.label") || "Wtype Keystroke Delay"
     description: pluginApi?.tr("settings.wtypeDelay.desc") || "Delay between keystrokes in ms (default: 12)"
-    text: root.editWtypeDelay.toString()
-    validator: RegularExpressionValidator { regularExpression: /^[0-9]+$/ }
-    onTextChanged: {
-      var val = parseInt(text)
-      if (!isNaN(val) && val >= 0) root.editWtypeDelay = val
-    }
+    text: root.editWtypeDelay
+    onTextChanged: root.editWtypeDelay = text
   }
 
   function saveSettings() {
     if (!pluginApi) return;
     pluginApi.pluginSettings.storePath = root.editStorePath;
-    pluginApi.pluginSettings.typeDelay = root.editTypeDelay;
-    pluginApi.pluginSettings.wtypeDelay = root.editWtypeDelay;
+
+    var typeDelayVal = parseFloat(root.editTypeDelay)
+    pluginApi.pluginSettings.typeDelay = isNaN(typeDelayVal) || typeDelayVal < 0 ? 0.2 : typeDelayVal;
+
+    var wtypeDelayVal = parseInt(root.editWtypeDelay)
+    pluginApi.pluginSettings.wtypeDelay = isNaN(wtypeDelayVal) || wtypeDelayVal < 0 ? 12 : wtypeDelayVal;
+
     pluginApi.saveSettings();
   }
 }
