@@ -99,7 +99,11 @@ Item {
   Process {
     id: copyProc
     onExited: function(exitCode, exitStatus) {
-      if (root.selectedField !== "otp" && root.selectedField !== "otp-type") {
+      var skipNotify = root.selectedField === "otp" ||
+                       root.selectedField === "otp-type" ||
+                       root.selectedField === "type-password" ||
+                       root.selectedField === "type-field"
+      if (!skipNotify) {
         ToastService.showNotice(pluginApi?.tr("notification.copied") || "Copied to clipboard")
       }
     }
@@ -579,6 +583,7 @@ Item {
 
     root.resetDetailMode()
     launcher.close()
+    root.selectedField = field ? "type-field" : "type-password"
     var wtypeDelay = pluginApi?.pluginSettings?.wtypeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.wtypeDelay || 12
     var typeDelay = pluginApi?.pluginSettings?.typeDelay || pluginApi?.manifest?.metadata?.defaultSettings?.typeDelay || 0.2
     var escapedValue = value.replace(/'/g, "'\\''")
