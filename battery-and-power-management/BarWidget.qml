@@ -39,29 +39,49 @@ Item {
         if (pluginApi) {
             pluginApi.mainInstance = root;
         }
-        profileGetter.running = true;
+        updatePowerProfile();
         thresholdLoader.reload();
     }
 
-    Process {
-        id: profileGetter
-        command: ["powerprofilesctl", "get"]
-        onExited: (code) => {
-            if (code === 0 && stdout && stdout.text) {
-                root.currentProfile = stdout.text.trim();
+    function updatePowerProfile() {
+        profileLoader.reload();
+    }
+
+    // Synchronous direct sysfs reader for power profile mapping power-profilesctl states
+    FileView {
+        id: profileLoader
+        path: "/sys/firmware/acpi/platform_profile"
+        printErrors: false
+        onLoaded: {
+            let raw = text();
+            if (raw) {
+                let cleaned = raw.trim();
+                if (cleaned === "performance") {
+                    root.currentProfile = "performance";
+                } else if (cleaned === "low-power") {
+                    root.currentProfile = "power-saver";
+                } else {
+                    root.currentProfile = "balanced";
+                }
             }
         }
     }
 
     function setPowerProfile(profile) {
         root.currentProfile = profile;
+        profileSetter.running = false;
         profileSetter.command = ["powerprofilesctl", "set", profile];
         profileSetter.running = true;
     }
 
     function setBatteryThreshold(value) {
         root.batteryThreshold = value;
-        thresholdSetter.command = ["sh", "-c", "echo " + value + " > /sys/class/power_supply/BAT0/charge_control_end_threshold"];
+        let devPath = "/sys/class/power_supply/BAT0";
+        if (typeof pluginApi !== "undefined" && pluginApi && pluginApi.pluginSettings && pluginApi.pluginSettings.batteryDevice) {
+            devPath = pluginApi.pluginSettings.batteryDevice;
+        }
+        thresholdSetter.running = false;
+        thresholdSetter.command = ["sh", "-c", "echo " + value + " > " + devPath + "/charge_control_end_threshold"];
         thresholdSetter.running = true;
     }
 
@@ -77,33 +97,40 @@ Item {
     Process {
         id: profileSetter
         onExited: (code) => {
-            profileGetter.running = false;
-            profileGetter.running = true;
+            updatePowerProfile();
         }
     }
 
     Timer {
+        id: globalRefreshTimer
         interval: 2000
         running: true
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            if (typeof pluginApi !== "undefined" && pluginApi && typeof pluginApi.pluginSettings !== "undefined") {
-                let devPath = pluginApi.pluginSettings.batteryDevice || "/sys/class/power_supply/BAT0";
-                let batName = devPath.split("/").pop() || "BAT0";
-                
-                batLoader.device = batName;
-                batLoader.reload();
-                
-                profileGetter.running = false;
-                profileGetter.running = true;
+            let devPath = "/sys/class/power_supply/BAT0";
+            if (typeof pluginApi !== "undefined" && pluginApi && pluginApi.pluginSettings && pluginApi.pluginSettings.batteryDevice) {
+                devPath = pluginApi.pluginSettings.batteryDevice;
             }
+            let batName = devPath.split("/").pop() || "BAT0";
+            
+            batLoader.device = batName;
+            batLoader.reload();
+            
+            thresholdLoader.reload();
+            updatePowerProfile();
         }
     }
 
     FileView {
         id: thresholdLoader
-        path: "/sys/class/power_supply/BAT0/charge_control_end_threshold"
+        path: {
+            let devPath = "/sys/class/power_supply/BAT0";
+            if (typeof pluginApi !== "undefined" && pluginApi && pluginApi.pluginSettings && pluginApi.pluginSettings.batteryDevice) {
+                devPath = pluginApi.pluginSettings.batteryDevice;
+            }
+            return devPath + "/charge_control_end_threshold";
+        }
         printErrors: false
         onLoaded: {
             let val = text();
@@ -133,7 +160,6 @@ Item {
             let volt = 0;
             let remain = 0;
             let status = "Unknown";
-
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (line.indexOf("POWER_SUPPLY_CAPACITY=") === 0) {
@@ -260,6 +286,9 @@ Item {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {
+            root.updatePowerProfile();
+            thresholdLoader.reload();
+            
             if (pluginApi && typeof pluginApi.openPanel === "function") {
                 pluginApi.openPanel(root.screen, root)
             }

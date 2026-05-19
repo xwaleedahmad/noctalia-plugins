@@ -19,6 +19,12 @@ Item {
 
     anchors.fill: parent
 
+    Component.onCompleted: {
+        if (root.mainWidget && typeof root.mainWidget.updatePowerProfile === "function") {
+            root.mainWidget.updatePowerProfile();
+        }
+    }
+
     ColumnLayout {
         id: mainLayout
         anchors.centerIn: parent
@@ -129,7 +135,7 @@ Item {
                 }
 
                 ProfileButton {
-                    icon: "bolt"
+                    icon: "gauge"
                     profile: "performance"
                     active: root.mainWidget?.currentProfile === "performance"
                     onClicked: root.mainWidget?.setPowerProfile("performance")
