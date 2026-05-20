@@ -34,9 +34,6 @@ Item {
 
   // Internal state.
   property var pendingWallpaperColorRequest: null
-  property string pendingCachedWallpaperColorPath: ""
-  property string pendingCachedWallpaperColorScreenName: ""
-  property bool pendingCachedWallpaperColorNotify: false
   property var pendingWallpaperColorReuseRequest: null
   property string wallpaperColorScreenName: ""
   property string wallpaperColorScaling: "fill"
@@ -134,9 +131,6 @@ Item {
   }
 
   function scheduleCachedWallpaperColorsForMonitor(reason = "") {
-    pendingCachedWallpaperColorPath = "";
-    pendingCachedWallpaperColorScreenName = "";
-
     if (!wallpaperColorsEnabled) {
       return;
     }
@@ -224,10 +218,6 @@ Item {
     if (request.path.length === 0) {
       return;
     }
-
-    pendingCachedWallpaperColorPath = "";
-    pendingCachedWallpaperColorScreenName = "";
-    pendingCachedWallpaperColorNotify = false;
 
     pendingWallpaperColorRequest = request;
     wallpaperColorStartTimer.restart();
@@ -317,31 +307,6 @@ Item {
     stderr: StdioCollector {}
   }
 
-  Process {
-    id: cachedWallpaperColorSyncCheckProcess
-    running: false
-
-    onExited: function (exitCode) {
-      const screenshotPath = root.pendingCachedWallpaperColorPath;
-      const screenName = root.pendingCachedWallpaperColorScreenName;
-      const notify = root.pendingCachedWallpaperColorNotify;
-
-      if (exitCode !== 0 || screenshotPath.length === 0) {
-        Logger.w("LWEController", "Cached wallpaper color screenshot missing for active monitor", "screen=", screenName, "path=", screenshotPath, "exitCode=", exitCode);
-        root.pendingCachedWallpaperColorPath = "";
-        root.pendingCachedWallpaperColorScreenName = "";
-        root.pendingCachedWallpaperColorNotify = false;
-        return;
-      }
-
-      root.pendingCachedWallpaperColorNotify = notify;
-      cachedWallpaperColorSyncTimer.restart();
-    }
-
-    stdout: StdioCollector {}
-    stderr: StdioCollector {}
-  }
-
   // Timers.
   Timer {
     id: wallpaperColorStartTimer
@@ -354,25 +319,6 @@ Item {
         return;
       }
       root.applyWallpaperColorsFromPath(request.path, request);
-    }
-  }
-
-  Timer {
-    id: cachedWallpaperColorSyncTimer
-    interval: root.colorSyncDelay
-    repeat: false
-
-    onTriggered: {
-      const screenshotPath = root.pendingCachedWallpaperColorPath;
-      const screenName = root.pendingCachedWallpaperColorScreenName;
-      root.pendingCachedWallpaperColorPath = "";
-      root.pendingCachedWallpaperColorScreenName = "";
-      root.pendingCachedWallpaperColorNotify = false;
-      if (screenshotPath.length === 0 || !root.wallpaperColorsEnabled) {
-        return;
-      }
-      Logger.i("LWEController", "Applying cached wallpaper colors for active monitor", "screen=", screenName || root.activeColorMonitor, "path=", screenshotPath);
-      root.applyWallpaperColorsFromScreenshot(screenshotPath);
     }
   }
 
@@ -396,9 +342,7 @@ Item {
   Component.onDestruction: {
     wallpaperColorProcess.running = false;
     reusedWallpaperColorCheckProcess.running = false;
-    cachedWallpaperColorSyncCheckProcess.running = false;
     wallpaperColorStartTimer.stop();
-    cachedWallpaperColorSyncTimer.stop();
     startupWallpaperColorResyncTimer.stop();
     applyingWallpaperColors = false;
   }

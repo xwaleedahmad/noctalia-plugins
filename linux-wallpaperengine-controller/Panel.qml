@@ -126,7 +126,7 @@ Item {
   property var wallpaperByPath: ({})
 
   function rebuildWallpaperByPath() {
-    const map = {};
+    const map = Object.create(null);
     for (const item of wallpaperItems) {
       map[String(item.path || "")] = item;
     }
@@ -238,6 +238,7 @@ Item {
         }
         wallpaperPropertyValues = nextValues;
         wallpaperPropertyError = "";
+        setWallpaperPropertyLoadFailed(wallpaperPath, false);
       }
       loadingWallpaperProperties = false;
       return;
