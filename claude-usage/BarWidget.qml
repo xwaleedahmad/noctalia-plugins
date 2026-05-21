@@ -28,18 +28,34 @@ Item {
     readonly property string pillIcon: isLoading ? "reload" : "robot"
     readonly property string pillText: {
         if (isLoading) return "";
-        const pct = main.sessionPercent ?? -1;
-        if (pct >= 0) return Math.round(pct) + "%";
-        return "$" + (main.todayCost ?? 0).toFixed(2);
+        const s = main.sessionPercent ?? -1;
+        const w = main.weeklyPercent  ?? -1;
+        switch (main.barMetric ?? "auto") {
+            case "session": return s >= 0 ? Math.round(s) + "%" : "--";
+            case "weekly":  return w >= 0 ? Math.round(w) + "%" : "--";
+            case "cost":    return "$" + (main.todayCost ?? 0).toFixed(2);
+            default:        return s >= 0 ? Math.round(s) + "%"
+                                          : "$" + (main.todayCost ?? 0).toFixed(2);
+        }
     }
 
-    implicitWidth: pill.width
-    implicitHeight: pill.height
+    readonly property color budgetColor: {
+        if (isLoading) return "transparent";
+        const p = main.budgetPercent ?? -1;
+        if (p >= 80) return Color.mError;
+        if (p >= 50) return Color.mTertiary;
+        return "transparent";
+    }
+
+    readonly property bool isOverBudget: (main?.budgetPercent ?? -1) >= 100
+
+    implicitWidth: barPill.width
+    implicitHeight: barPill.height
 
     NPopupContextMenu {
         id: contextMenu
         model: [{
-            label: pluginApi?.tr("settings.pluginSettings"),
+            label: pluginApi?.tr("settings.pluginSettings") ?? "Plugin settings",
             action: "plugin-settings",
             icon: "settings"
         }]
@@ -52,7 +68,7 @@ Item {
     }
 
     BarPill {
-        id: pill
+        id: barPill
         screen: root.screen
         oppositeDirection: BarService.getPillDirection(root)
         autoHide: false
@@ -71,13 +87,23 @@ Item {
         forceOpen: !root.isBarVertical && root.displayMode === "alwaysShow"
         forceClose: root.isBarVertical || root.displayMode === "alwaysHide"
 
+        customTextIconColor: root.budgetColor
+
+        SequentialAnimation {
+            running: root.isOverBudget
+            loops: Animation.Infinite
+            onRunningChanged: if (!running) barPill.opacity = 1.0
+            NumberAnimation { target: barPill; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: barPill; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+        }
+
         onClicked: {
             if (pluginApi)
-                pluginApi.openPanel(root.screen, pill);
+                pluginApi.openPanel(root.screen, barPill);
         }
 
         onRightClicked: {
-            PanelService.showContextMenu(contextMenu, pill, screen);
+            PanelService.showContextMenu(contextMenu, barPill, screen);
         }
     }
 }

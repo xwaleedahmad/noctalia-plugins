@@ -22,6 +22,13 @@ Item {
     property real   weeklyPercent: -1
     property string weeklyResetsIn: ""
 
+    property var    todayByModel:  []
+    readonly property string barMetric:   pluginApi?.pluginSettings?.barMetric   ?? "auto"
+    readonly property real   dailyBudget: pluginApi?.pluginSettings?.dailyBudget ?? 0
+    readonly property real   budgetPercent: dailyBudget > 0
+        ? Math.min(200, (todayCost / dailyBudget) * 100)
+        : -1
+
     readonly property int pollInterval: pluginApi?.pluginSettings?.pollInterval ?? 60000
 
     function refresh() {
@@ -47,6 +54,7 @@ Item {
                 root.sessionResetsIn       = d.limits?.session?.resets ?? "";
                 root.weeklyPercent         = d.limits?.weekly?.percent ?? -1;
                 root.weeklyResetsIn        = d.limits?.weekly?.resets ?? "";
+                root.todayByModel = d.today?.by_model  ?? [];
             } catch(e) {}
         }
     }

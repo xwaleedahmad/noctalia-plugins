@@ -9,9 +9,10 @@
   "description": "Shows Claude Code session usage limits and API cost in the bar, with live progress bars for session and weekly limits from the Anthropic OAuth API. Requires Claude Code CLI installed and authenticated, and python3 in PATH.",
   "tags": ["Bar", "Development", "AI"],
   "entryPoints": {
-    "main": "Main.qml",
+    "main":      "Main.qml",
     "barWidget": "BarWidget.qml",
-    "panel": "Panel.qml"
+    "panel":     "Panel.qml",
+    "settings":  "Settings.qml"
   },
   "dependencies": {
     "plugins": []
@@ -19,8 +20,10 @@
   "metadata": {
     "displayMode": "alwaysShow",
     "defaultSettings": {
-      "displayMode": "alwaysShow",
-      "pollInterval": 60000
+      "displayMode":  "alwaysShow",
+      "pollInterval": 60000,
+      "barMetric":    "auto",
+      "dailyBudget":  0
     }
   }
 }

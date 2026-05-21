@@ -69,26 +69,26 @@ Item {
                         Layout.fillWidth: true
 
                         NLabel {
-                            label: pluginApi?.tr("panel.title")
+                            label: "Claude Code"
                         }
 
                         NLabel {
                             visible: (main?.sessionResetsIn ?? "") !== "" || (main?.weeklyResetsIn ?? "") !== ""
-                            label: pluginApi?.tr("panel.updated")
+                            label: "Updated just now"
                             labelColor: Color.mOnSurfaceVariant
                         }
                     }
 
                     NIconButton {
                         icon: "refresh"
-                        tooltipText: pluginApi?.tr("panel.refresh")
+                        tooltipText: "Refresh"
                         baseSize: Style.baseWidgetSize * 0.8
                         onClicked: main?.refresh()
                     }
 
                     NIconButton {
                         icon: "close"
-                        tooltipText: pluginApi?.tr("panel.close")
+                        tooltipText: "Close"
                         baseSize: Style.baseWidgetSize * 0.8
                         onClicked: pluginApi.closePanel(pluginApi.panelOpenScreen)
                     }
@@ -113,7 +113,7 @@ Item {
                         spacing: Math.round(4 * Style.uiScaleRatio)
 
                         NLabel {
-                            label: pluginApi?.tr("panel.session")
+                            label: "Session"
                             labelColor: Color.mOnSurface
                         }
 
@@ -148,14 +148,14 @@ Item {
                             Layout.fillWidth: true
 
                             NLabel {
-                                label: Math.round(main?.sessionPercent ?? 0) + "% " + pluginApi?.tr("panel.used")
+                                label: Math.round(main?.sessionPercent ?? 0) + "% used"
                                 labelColor: Color.mOnSurfaceVariant
                                 Layout.fillWidth: true
                             }
 
                             NLabel {
                                 visible: (main?.sessionResetsIn ?? "") !== ""
-                                label: pluginApi?.tr("panel.resets") + " " + (main?.sessionResetsIn ?? "")
+                                label: "Resets " + (main?.sessionResetsIn ?? "")
                                 labelColor: Color.mOnSurfaceVariant
                             }
                         }
@@ -175,7 +175,7 @@ Item {
                         spacing: Math.round(4 * Style.uiScaleRatio)
 
                         NLabel {
-                            label: pluginApi?.tr("panel.weekly")
+                            label: "Weekly"
                             labelColor: Color.mOnSurface
                         }
 
@@ -210,14 +210,14 @@ Item {
                             Layout.fillWidth: true
 
                             NLabel {
-                                label: Math.round(main?.weeklyPercent ?? 0) + "% " + pluginApi?.tr("panel.used")
+                                label: Math.round(main?.weeklyPercent ?? 0) + "% used"
                                 labelColor: Color.mOnSurfaceVariant
                                 Layout.fillWidth: true
                             }
 
                             NLabel {
                                 visible: (main?.weeklyResetsIn ?? "") !== ""
-                                label: pluginApi?.tr("panel.resets") + " " + (main?.weeklyResetsIn ?? "")
+                                label: "Resets " + (main?.weeklyResetsIn ?? "")
                                 labelColor: Color.mOnSurfaceVariant
                             }
                         }
@@ -225,7 +225,7 @@ Item {
                 }
             }
 
-            // ── Cost ─────────────────────────────────────────────────────────
+            // ── Cost ─────────────────────────────────────────────
             NBox {
                 Layout.fillWidth: true
                 Layout.preferredHeight: Math.round(costCol.implicitHeight + Style.marginM * 2)
@@ -236,26 +236,76 @@ Item {
                     anchors.margins: Style.marginM
                     spacing: Style.marginS
 
-                    RowLayout {
+                    NLabel {
+                        label: pluginApi?.tr("panel.cost") ?? "Cost"
+                        labelColor: Color.mOnSurface
                         Layout.fillWidth: true
+                    }
 
-                        NLabel {
-                            label: pluginApi?.tr("panel.cost")
-                            labelColor: Color.mOnSurface
+                    // Model breakdown bars
+                    Repeater {
+                        model: main?.todayByModel ?? []
+                        delegate: ColumnLayout {
+                            required property var modelData
                             Layout.fillWidth: true
+                            spacing: Math.round(3 * Style.uiScaleRatio)
+
+                            RowLayout {
+                                Layout.fillWidth: true
+                                NLabel {
+                                    label: modelData.model
+                                    labelColor: Color.mOnSurfaceVariant
+                                    Layout.fillWidth: true
+                                }
+                                NLabel {
+                                    label: root.fmtCost(modelData.cost ?? 0)
+                                    labelColor: Color.mOnSurface
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: Math.round(5 * Style.uiScaleRatio)
+                                radius: height / 2
+                                color: Color.mSurfaceVariant
+
+                                Rectangle {
+                                    width: parent.width * Math.min(1, Math.max(0,
+                                        (modelData.cost ?? 0) / Math.max(0.0001, main?.todayCost ?? 0.0001)))
+                                    height: parent.height
+                                    radius: parent.radius
+                                    color: Color.mPrimary
+                                    Behavior on width { NumberAnimation { duration: 300 } }
+                                }
+                            }
                         }
                     }
 
+                    // Divider — only when breakdown is present
+                    Rectangle {
+                        visible: (main?.todayByModel?.length ?? 0) > 0
+                        Layout.fillWidth: true
+                        height: 1
+                        color: Color.mSurfaceVariant
+                        opacity: 0.5
+                    }
+
                     NLabel {
-                        label: pluginApi?.tr("panel.today") + ": " + root.fmtCost(main?.todayCost ?? 0) +
-                               "  ·  " + root.fmtTokens((main?.todayInputTokens ?? 0) + (main?.todayOutputTokens ?? 0)) + " " + pluginApi?.tr("panel.tokens")
+                        label: (pluginApi?.tr("panel.today") ?? "Today") + ": " + root.fmtCost(main?.todayCost ?? 0) +
+                               "  ·  " + root.fmtTokens((main?.todayInputTokens ?? 0) + (main?.todayOutputTokens ?? 0)) + " " + (pluginApi?.tr("panel.tokens") ?? "tokens")
                         labelColor: Color.mOnSurfaceVariant
                         Layout.fillWidth: true
                     }
 
                     NLabel {
-                        label: pluginApi?.tr("panel.this-month") + ": " + root.fmtCost(main?.monthCost ?? 0) +
-                               "  ·  " + (main?.monthSessions ?? 0) + " " + pluginApi?.tr("panel.sessions")
+                        label: (pluginApi?.tr("panel.this-month") ?? "This month") + ": " + root.fmtCost(main?.monthCost ?? 0) +
+                               "  ·  " + (main?.monthSessions ?? 0) + " " + (pluginApi?.tr("panel.sessions") ?? "sessions")
+                        labelColor: Color.mOnSurfaceVariant
+                        Layout.fillWidth: true
+                    }
+
+                    NLabel {
+                        label: (pluginApi?.tr("panel.all-time") ?? "All time") + ": " + root.fmtCost(main?.allCost ?? 0)
                         labelColor: Color.mOnSurfaceVariant
                         Layout.fillWidth: true
                     }

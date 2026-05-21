@@ -1,21 +1,68 @@
 #!/usr/bin/env python3
-import json, urllib.request
+import json, re, time, urllib.request
 from datetime import datetime, timezone, date
 from pathlib import Path
 
 PROJECTS_DIR = Path.home() / ".claude" / "projects"
 CREDS_FILE   = Path.home() / ".claude" / ".credentials.json"
 
-PRICING = {
-    "claude-sonnet-4-6":         {"input": 3.0,  "cache_creation": 3.75,  "cache_read": 0.30, "output": 15.0},
-    "claude-opus-4-7":           {"input": 15.0, "cache_creation": 18.75, "cache_read": 1.50, "output": 75.0},
-    "claude-opus-4-6":           {"input": 15.0, "cache_creation": 18.75, "cache_read": 1.50, "output": 75.0},
-    "claude-haiku-4-5-20251001": {"input": 0.80, "cache_creation": 1.0,   "cache_read": 0.08, "output": 4.0},
-}
-DEFAULT_PRICING = {"input": 3.0, "cache_creation": 3.75, "cache_read": 0.30, "output": 15.0}
+# Hardcoded tier fallbacks (per million tokens)
+SONNET_PRICING = {"input": 3.0,  "cache_creation": 3.75,  "cache_read": 0.30, "output": 15.0}
+OPUS_PRICING   = {"input": 15.0, "cache_creation": 18.75, "cache_read": 1.50, "output": 75.0}
+HAIKU_PRICING  = {"input": 0.80, "cache_creation": 1.0,   "cache_read": 0.08, "output": 4.0}
+
+PRICING_CACHE = Path.home() / ".cache" / "claude-pricing.json"
+WEEK = 604800
+
+def load_pricing():
+    try:
+        if PRICING_CACHE.exists() and (time.time() - PRICING_CACHE.stat().st_mtime) < WEEK:
+            return json.loads(PRICING_CACHE.read_text())
+    except Exception:
+        pass
+    try:
+        req = urllib.request.Request(
+            "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json"
+        )
+        with urllib.request.urlopen(req, timeout=5) as r:
+            data = json.loads(r.read())
+        try:
+            PRICING_CACHE.parent.mkdir(parents=True, exist_ok=True)
+            PRICING_CACHE.write_text(json.dumps(data))
+        except Exception:
+            pass
+        return data
+    except Exception:
+        try:
+            return json.loads(PRICING_CACHE.read_text())
+        except Exception:
+            return {}
+
+def get_pricing(model_id, table):
+    if model_id in table:
+        p = table[model_id]
+        return {
+            "input":          p.get("input_cost_per_token",            0) * 1_000_000,
+            "cache_creation": p.get("cache_creation_input_token_cost", 0) * 1_000_000,
+            "cache_read":     p.get("cache_read_input_token_cost",     0) * 1_000_000,
+            "output":         p.get("output_cost_per_token",           0) * 1_000_000,
+        }
+    m = model_id.lower()
+    if "opus"  in m: return OPUS_PRICING
+    if "haiku" in m: return HAIKU_PRICING
+    return SONNET_PRICING
+
+def friendly_name(model_id):
+    m = re.search(r'claude-(\w+)-(\d+)-(\d+)', model_id)
+    if m: return m.group(1).capitalize() + " " + m.group(2) + "." + m.group(3)
+    m = re.search(r'claude-(\w+)-(\d+)', model_id)
+    if m: return m.group(1).capitalize() + " " + m.group(2)
+    return model_id
+
+PRICING_TABLE = load_pricing()
 
 def calc_cost(usage, model):
-    p = PRICING.get(model, DEFAULT_PRICING)
+    p = get_pricing(model, PRICING_TABLE)
     return (
         usage.get("input_tokens", 0)                * p["input"] +
         usage.get("cache_creation_input_tokens", 0) * p["cache_creation"] +
@@ -68,6 +115,7 @@ td = {"cost": 0.0, "input_tokens": 0, "output_tokens": 0,
       "cache_read_tokens": 0, "cache_write_tokens": 0, "sessions": set()}
 mo = {"cost": 0.0, "sessions": set()}
 al = {"cost": 0.0}
+td_by_model = {}  # model_id -> cumulative cost today
 
 for jsonl_file in PROJECTS_DIR.rglob("*.jsonl"):
     sid = jsonl_file.stem
@@ -82,7 +130,8 @@ for jsonl_file in PROJECTS_DIR.rglob("*.jsonl"):
                     usage = msg.get("usage")
                     if not usage:
                         continue
-                    cost = calc_cost(usage, msg.get("model", ""))
+                    model_id = msg.get("model", "unknown")
+                    cost     = calc_cost(usage, model_id)
                     ts   = d.get("timestamp", "")[:10]
                     al["cost"] += cost
                     if ts.startswith(month_pfx):
@@ -95,6 +144,7 @@ for jsonl_file in PROJECTS_DIR.rglob("*.jsonl"):
                         td["cache_read_tokens"]  += usage.get("cache_read_input_tokens", 0)
                         td["cache_write_tokens"] += usage.get("cache_creation_input_tokens", 0)
                         td["sessions"].add(sid)
+                        td_by_model[model_id] = td_by_model.get(model_id, 0.0) + cost
                 except Exception:
                     pass
     except Exception:
@@ -102,5 +152,11 @@ for jsonl_file in PROJECTS_DIR.rglob("*.jsonl"):
 
 td["sessions"] = len(td["sessions"])
 mo["sessions"] = len(mo["sessions"])
+
+td["by_model"] = sorted(
+    [{"model": friendly_name(k), "cost": round(v, 8)} for k, v in td_by_model.items() if v > 0],
+    key=lambda x: x["cost"],
+    reverse=True,
+)
 
 print(json.dumps({"today": td, "month": mo, "all": al, "limits": fetch_limits()}))
