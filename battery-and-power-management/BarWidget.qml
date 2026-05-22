@@ -24,7 +24,7 @@ Item {
 
     property int batPercent: 0
     property real wattNum: 0.0
-    property string batStatus: pluginApi?.tr("battery.status_unknown")
+    property string batStatus: pluginApi.tr("battery.status_unknown")
     property string timeRemaining: "..."
     
     property string currentProfile: "balanced"
@@ -35,6 +35,34 @@ Item {
     implicitWidth: contentWidth
     implicitHeight: Style.barHeight
 
+    // ===== Power Profiles =====
+
+    Process {
+        id: profileGetter
+        command: ["powerprofilesctl", "get"]
+        running: false
+        stdout: SplitParser {
+            onRead: data => {
+                root.currentProfile = data.trim();
+            }
+        }
+    }
+
+    Process {
+        id: profileSetter
+        running: false
+    }
+
+    function updatePowerProfile() {
+        profileGetter.running = true;
+    }
+
+    function setPowerProfile(profile) {
+        profileSetter.command = ["powerprofilesctl", "set", profile];
+        profileSetter.running = true;
+        root.currentProfile = profile;
+    }
+
     Component.onCompleted: {
         if (pluginApi) {
             pluginApi.mainInstance = root;
@@ -43,42 +71,11 @@ Item {
         thresholdLoader.reload();
     }
 
-    function updatePowerProfile() {
-        profileLoader.reload();
-    }
-
-    FileView {
-        id: profileLoader
-        path: "/sys/firmware/acpi/platform_profile"
-        printErrors: false
-        onLoaded: {
-            let raw = text();
-            if (raw) {
-                let cleaned = raw.trim();
-                if (cleaned === "performance") {
-                    root.currentProfile = "performance";
-                } else if (cleaned === "low-power") {
-                    root.currentProfile = "power-saver";
-                } else {
-                    root.currentProfile = "balanced";
-                }
-            }
-        }
-    }
-
-    function setPowerProfile(profile) {
-        root.currentProfile = profile;
-        profileSetter.running = false;
-        profileSetter.command = ["powerprofilesctl", "set", profile];
-        profileSetter.running = true;
-    }
+    // ===== Battery Logic =====
 
     function setBatteryThreshold(value) {
         root.batteryThreshold = value;
-        let devPath = "/sys/class/power_supply/BAT0";
-        if (pluginApi?.pluginSettings?.batteryDevice) {
-            devPath = pluginApi.pluginSettings.batteryDevice;
-        }
+        let devPath = pluginApi?.pluginSettings?.batteryDevice ?? "/sys/class/power_supply/BAT0";
         thresholdSetter.running = false;
         thresholdSetter.command = ["sh", "-c", "echo " + value + " > " + devPath + "/charge_control_end_threshold"];
         thresholdSetter.running = true;
@@ -87,13 +84,8 @@ Item {
     Process {
         id: thresholdSetter
         onExited: (code) => {
-            if (code !== 0) Logger.error("Error writing battery threshold.");
+            if (code !== 0) console.warn("Error writing battery threshold.");
         }
-    }
-
-    Process {
-        id: profileSetter
-        onExited: (code) => { updatePowerProfile(); }
     }
 
     Timer {
@@ -103,28 +95,16 @@ Item {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            let devPath = "/sys/class/power_supply/BAT0";
-            if (pluginApi?.pluginSettings?.batteryDevice) {
-                devPath = pluginApi.pluginSettings.batteryDevice;
-            }
-            let batName = devPath.split("/").pop() || "BAT0";
-            batLoader.device = batName;
+            let devPath = pluginApi?.pluginSettings?.batteryDevice ?? "/sys/class/power_supply/BAT0";
+            batLoader.device = devPath.split("/").pop() || "BAT0";
             batLoader.reload();
-            
             thresholdLoader.reload();
-            updatePowerProfile();
         }
     }
 
     FileView {
         id: thresholdLoader
-        path: {
-            let devPath = "/sys/class/power_supply/BAT0";
-            if (pluginApi?.pluginSettings?.batteryDevice) {
-                devPath = pluginApi.pluginSettings.batteryDevice;
-            }
-            return devPath + "/charge_control_end_threshold";
-        }
+        path: (pluginApi?.pluginSettings?.batteryDevice ?? "/sys/class/power_supply/BAT0") + "/charge_control_end_threshold"
         printErrors: false
         onLoaded: {
             let val = text();
@@ -146,70 +126,29 @@ Item {
             if (!content) return;
 
             let lines = content.split("\n");
-            let cap = 0, rate = 0, volt = 0, remain = 0;
-            let status = "Unknown";
+            let cap = 0, rate = 0;
+            let statusRaw = "Unknown";
 
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (line.indexOf("POWER_SUPPLY_CAPACITY=") === 0) cap = parseInt(line.split("=")[1]) || 0;
                 else if (line.indexOf("POWER_SUPPLY_POWER_NOW=") === 0) rate = parseInt(line.split("=")[1]) || 0;
-                else if (line.indexOf("POWER_SUPPLY_CURRENT_NOW=") === 0) rate = parseInt(line.split("=")[1]) || rate;
-                else if (line.indexOf("POWER_SUPPLY_VOLTAGE_NOW=") === 0) volt = parseInt(line.split("=")[1]) || 0;
-                else if (line.indexOf("POWER_SUPPLY_ENERGY_NOW=") === 0) remain = parseInt(line.split("=")[1]) || remain;
-                else if (line.indexOf("POWER_SUPPLY_CHARGE_NOW=") === 0) remain = parseInt(line.split("=")[1]) || remain;
-                else if (line.indexOf("POWER_SUPPLY_STATUS=") === 0) status = line.split("=")[1] || "Unknown";
+                else if (line.indexOf("POWER_SUPPLY_STATUS=") === 0) statusRaw = line.split("=")[1] || "Unknown";
             }
 
             root.batPercent = cap;
-            root.batStatus = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+            
+            if (statusRaw === "Charging") root.batStatus = pluginApi.tr("battery.status_charging");
+            else if (statusRaw === "Full") root.batStatus = pluginApi.tr("battery.status_full");
+            else if (statusRaw === "Discharging") root.batStatus = pluginApi.tr("battery.status_discharging");
+            else if (statusRaw === "Not charging") root.batStatus = pluginApi.tr("battery.status_not_charging");
+            else root.batStatus = pluginApi.tr("battery.status_unknown");
 
-            if (content.indexOf("POWER_SUPPLY_POWER_NOW=") !== -1) root.wattNum = rate / 1000000.0;
-            else if (volt > 0) root.wattNum = (rate * volt) / 1000000000000.0;
-            else root.wattNum = 0.0;
-
-            if (root.wattNum > 0.1 && remain > 0) {
-                let totalHours = 0;
-                if (content.indexOf("POWER_SUPPLY_ENERGY_NOW=") !== -1) {
-                    let energyNow = remain / 1000000.0;
-                    if (root.batStatus === "Discharging") totalHours = energyNow / root.wattNum;
-                    else if (root.batStatus === pluginApi?.tr("battery.status_charging")) {
-                        let energyFull = 50.0;
-                        for (let j = 0; j < lines.length; j++) {
-                            if (lines[j].indexOf("POWER_SUPPLY_ENERGY_FULL=") === 0) {
-                                energyFull = parseInt(lines[j].split("=")[1]) / 1000000.0;
-                                break;
-                            }
-                        }
-                        totalHours = (energyFull - energyNow) / root.wattNum;
-                    }
-                } else if (volt > 0) {
-                    let chargeNow = remain / 1000000.0;
-                    let currentNow = rate / 1000000.0;
-                    if (currentNow > 0) {
-                        if (root.batStatus === "Discharging") totalHours = chargeNow / currentNow;
-                        else if (root.batStatus === pluginApi?.tr("battery.status_charging")) {
-                            let chargeFull = 4.5;
-                            for (let j = 0; j < lines.length; j++) {
-                                if (lines[j].indexOf("POWER_SUPPLY_CHARGE_FULL=") === 0) {
-                                    chargeFull = parseInt(lines[j].split("=")[1]) / 1000000.0;
-                                    break;
-                                }
-                            }
-                            totalHours = (chargeFull - chargeNow) / currentNow;
-                        }
-                    }
-                }
-
-                if (totalHours > 0 && totalHours < 24) {
-                    let h = Math.floor(totalHours);
-                    let m = Math.floor((totalHours - h) * 60);
-                    root.timeRemaining = h + "h " + m + "m";
-                } else root.timeRemaining = "0h 0m";
-            } else if (root.batStatus === "Full" || root.batStatus === pluginApi?.tr("battery.status_not_charging")) root.timeRemaining = "0h 0m";
-            else root.timeRemaining = "...";
+            root.wattNum = rate / 1000000.0;
         }
     }
 
+    // ===== UI =====
     Rectangle {
         id: visualCapsule
         anchors.centerIn: parent
@@ -219,9 +158,9 @@ Item {
         
         color: mouseArea.containsMouse 
             ? Color.mHover 
-            : (root.batStatus === pluginApi?.tr("battery.status_charging") ? Color.mPrimary : Style.capsuleColor)
+            : (root.batStatus === pluginApi.tr("battery.status_charging") ? Color.mPrimary : Style.capsuleColor)
 
-        border.color: root.batStatus === pluginApi?.tr("battery.status_charging") ? Color.mPrimary : Style.capsuleBorderColor
+        border.color: root.batStatus === pluginApi.tr("battery.status_charging") ? Color.mPrimary : Style.capsuleBorderColor
         border.width: Style.capsuleBorderWidth
 
         RowLayout {
@@ -230,16 +169,16 @@ Item {
             spacing: Style.marginS
 
             NIcon {
-                icon: (root.batStatus === pluginApi?.tr("battery.status_charging") || root.batStatus === pluginApi?.tr("battery.status_full")) ? "battery-charging" : "battery-4"
-                color: mouseArea.containsMouse || root.batStatus === pluginApi?.tr("battery.status_charging") ? Color.mOnPrimary : Color.mOnSurface
+                icon: (root.batStatus === pluginApi.tr("battery.status_charging") || root.batStatus === pluginApi.tr("battery.status_full")) ? "battery-charging" : "battery-4"
+                color: mouseArea.containsMouse || root.batStatus === pluginApi.tr("battery.status_charging") ? Color.mOnPrimary : Color.mOnSurface
             }
 
             NText {
-                text: root.batPercent + "% " + (root.batStatus === pluginApi?.tr("battery.status_charging") ? "+" : "-") + root.wattNum.toFixed(1) + "W"
+                text: root.batPercent + "% " + (root.batStatus === pluginApi.tr("battery.status_charging") ? "+" : "-") + root.wattNum.toFixed(1) + "W"
                 pointSize: barFontSize
                 font.family: root.fixedFont
                 font.weight: Font.Bold
-                color: mouseArea.containsMouse || root.batStatus === pluginApi?.tr("battery.status_charging") ? Color.mOnPrimary : Color.mOnSurface
+                color: mouseArea.containsMouse || root.batStatus === pluginApi.tr("battery.status_charging") ? Color.mOnPrimary : Color.mOnSurface
             }
         }
     }
