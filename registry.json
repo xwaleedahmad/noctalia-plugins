@@ -842,7 +842,7 @@
     {
       "id": "mangowc-layout-switcher",
       "name": "mango layout switcher",
-      "version": "2.0.1",
+      "version": "3.0.0",
       "official": false,
       "author": "atheeq-rhxn",
       "description": "Switch between different mangowc layouts",
@@ -854,7 +854,7 @@
         "Panel",
         "MangoWC"
       ],
-      "lastUpdated": "2026-03-29T19:05:12-04:00"
+      "lastUpdated": "2026-05-25T17:44:15+05:30"
     },
     {
       "id": "mawaqit",
