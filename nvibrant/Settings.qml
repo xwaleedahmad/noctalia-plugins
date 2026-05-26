@@ -7,22 +7,10 @@ ColumnLayout {
   id: root
   property var pluginApi: null
 
-  property int editVibranceValue: 512
-  property int editDisplayCount: 1
+  readonly property var cfg: pluginApi?.pluginSettings ?? ({})
+  readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings ?? ({})
 
   spacing: Style.marginM
-
-  onPluginApiChanged: { if (pluginApi) loadSettings() }
-  Component.onCompleted: { if (pluginApi) loadSettings() }
-
-  function loadSettings() {
-    var s = pluginApi?.pluginSettings
-    var d = pluginApi?.manifest?.metadata?.defaultSettings
-    root.editVibranceValue = s?.vibranceValue ?? d?.vibranceValue ?? 512
-    root.editDisplayCount  = s?.displayCount  ?? d?.displayCount  ?? 1
-    vibranceSpinBox.value   = root.editVibranceValue
-    displayCountSpinBox.value = root.editDisplayCount
-  }
 
   ColumnLayout {
     Layout.fillWidth: true
@@ -38,8 +26,7 @@ ColumnLayout {
       from: 0
       to: 1023
       stepSize: 64
-      value: root.editVibranceValue
-      onValueChanged: if (value !== root.editVibranceValue) root.editVibranceValue = value
+      value: root.cfg.vibranceValue ?? root.defaults.vibranceValue ?? 512
     }
   }
 
@@ -63,23 +50,14 @@ ColumnLayout {
       from: 1
       to: 8
       stepSize: 1
-      value: root.editDisplayCount
-      onValueChanged: if (value !== root.editDisplayCount) root.editDisplayCount = value
+      value: root.cfg.displayCount ?? root.defaults.displayCount ?? 1
     }
   }
 
   function saveSettings() {
     if (!pluginApi) return
-    pluginApi.pluginSettings.vibranceValue = root.editVibranceValue
-    pluginApi.pluginSettings.displayCount  = root.editDisplayCount
+    pluginApi.pluginSettings.vibranceValue = vibranceSpinBox.value
+    pluginApi.pluginSettings.displayCount  = displayCountSpinBox.value
     pluginApi.saveSettings()
-
-    var m = pluginApi.mainInstance
-    if (m) {
-      m.vibranceValue = root.editVibranceValue
-      m.displayCount  = root.editDisplayCount
-      if (m.vibrantEnabled)
-        m.applyVibrance(root.editVibranceValue)
-    }
   }
 }
